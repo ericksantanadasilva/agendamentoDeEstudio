@@ -5,12 +5,14 @@ import {
   UserIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 import { handleGoogleLogin, handleLoginWithEmail } from './auth';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -18,7 +20,7 @@ export default function LoginPage() {
       return;
     }
 
-    await handleLoginWithEmail(email, password);
+    await handleLoginWithEmail(email, password, navigate);
   };
 
   return (
@@ -72,7 +74,7 @@ export default function LoginPage() {
         </div>
 
         <p className='text-sm text-gray-500 mb-4 cursor-pointer hover:underline'>
-          Esqueceu o seu usuário ou senha?
+          Esqueceu a senha?
         </p>
 
         <button

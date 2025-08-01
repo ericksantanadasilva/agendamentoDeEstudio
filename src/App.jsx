@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage/LoginPage';
-import CalendarPage from './pages/CalendarPage';
+import CalendarPage from './pages/CalendarPage/CalendarPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegisterPage from './pages/LoginPage/RegisterPage';
 

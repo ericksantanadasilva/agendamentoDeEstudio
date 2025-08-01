@@ -5,11 +5,13 @@ import {
   UserIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 import { handleRegisterWithEmail } from './auth';
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: '', password: '' });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,7 +19,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleRegisterWithEmail(form.email, form.password);
+    await handleRegisterWithEmail(form.email, form.password, navigate);
   };
 
   return (

@@ -13,25 +13,29 @@ export const handleGoogleLogin = async () => {
   }
 };
 
-export const handleRegisterWithEmail = async (email, password) => {
+export const handleRegisterWithEmail = async (email, password, navigate) => {
   const { error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
     alert('Erro ao cadastrar ' + error.message);
   } else {
     alert('Cadastro realizado! Você pode fazer login agora.');
-    window.location.href = '/';
+    navigate('/');
   }
 };
 
-export const handleLoginWithEmail = async (email, password) => {
+export const handleLoginWithEmail = async (email, password, navigate) => {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     alert('Erro ao fazer login: ' + error.message);
   } else {
-    window.location.href = '/agenda';
+    navigate('/agenda');
   }
+};
+
+export const logout = async () => {
+  await supabase.auth.signOut();
 };
 
 export default handleGoogleLogin;
