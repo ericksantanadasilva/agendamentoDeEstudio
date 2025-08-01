@@ -5,10 +5,21 @@ import {
   UserIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline';
-import handleGoogleLogin from './auth';
+import { handleGoogleLogin, handleLoginWithEmail } from './auth';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert('Preencha todos os campos!');
+      return;
+    }
+
+    await handleLoginWithEmail(email, password);
+  };
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-blue-700 to-fuchsia-500 flex items-center justify-center'>
@@ -28,6 +39,8 @@ export default function LoginPage() {
           <input
             type='email'
             placeholder='Email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             id='email'
             name='email'
             className='ml-2 outline-none flex-1 bg-transparent'
@@ -41,6 +54,8 @@ export default function LoginPage() {
           <input
             type={showPassword ? 'text' : 'password'}
             placeholder='Senha'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             name='password'
             id='password'
             className='ml-2 outline-none flex-1 bg-transparent'
@@ -60,9 +75,22 @@ export default function LoginPage() {
           Esqueceu o seu usuário ou senha?
         </p>
 
-        <button className='bg-purple-600 hover:bg-purple-700 text-white w-full py-2 rounded-md font-semibold cursor-pointer'>
+        <button
+          onClick={handleLogin}
+          className='bg-purple-600 hover:bg-purple-700 text-white w-full py-2 rounded-md font-semibold cursor-pointer'
+        >
           Acessar
         </button>
+
+        <p className='mt -4 text-sm text-gray-500'>
+          Não tem uma conta?{' '}
+          <a
+            href='/register'
+            className='text-purple-600 hover:underline font-medium'
+          >
+            Cadastre-se
+          </a>
+        </p>
       </div>
     </div>
   );
