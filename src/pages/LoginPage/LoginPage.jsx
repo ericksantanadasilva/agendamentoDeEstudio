@@ -5,6 +5,7 @@ import {
   UserIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline';
+import handleGoogleLogin from './auth';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,7 +15,10 @@ export default function LoginPage() {
       <div className='bg-white rounded-3xl shadow-xl w-full max-w-sm p-8 text-center'>
         <img src='logo.png' alt='logo foco medicina' />
 
-        <button className='w-full flex items-center justify-center gap-2 border rounded-md py-2 text-gray-700 hover:bg-gray-100 transition mb-4'>
+        <button
+          onClick={handleGoogleLogin}
+          className='w-full flex items-center justify-center gap-2 border rounded-md py-2 text-gray-700 hover:bg-gray-100 transition mb-4'
+        >
           <img src='google.svg' alt='logo Google' className='h-5 w-5' />
           <span>Continuar com o Google</span>
         </button>
