@@ -6,7 +6,7 @@ import {
   Bars3Icon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { logout } from '../pages/LoginPage/auth';
+import { logout } from '../lib/auth';
 import { useState } from 'react';
 
 export const Sidebar = () => {
@@ -34,7 +34,7 @@ export const Sidebar = () => {
       )}
       {isOpen && (
         <div
-          className='fixed inset-0 bg-black bg-opacity-30 z-30'
+          className='fixed inset-0 bg-transparent z-30'
           onClick={handleBackdropClick}
         ></div>
       )}

@@ -1,10 +1,10 @@
-import { supabase } from '../../lib/supabase';
+import { supabase } from './supabase';
 
 export const handleGoogleLogin = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: 'http://localhost:5173/agenda',
+      redirectTo: 'http://192.168.0.103:5173/agenda',
     },
   });
 

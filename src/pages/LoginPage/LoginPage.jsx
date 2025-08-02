@@ -6,7 +6,7 @@ import {
   KeyIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
-import { handleGoogleLogin, handleLoginWithEmail } from './auth';
+import { handleGoogleLogin, handleLoginWithEmail } from '../../lib/auth';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);

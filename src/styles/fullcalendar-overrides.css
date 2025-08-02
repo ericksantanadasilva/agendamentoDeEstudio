@@ -1,0 +1,130 @@
+/* Altura fixa e sem scroll */
+.fc {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.fc-scroller-harness {
+  overflow: hidden !important;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Centraliza o número da data no topo da célula */
+.fc-daygrid-day-top {
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #111827; /* text-gray-900 */
+}
+
+/* Remove o fundo e destaca o “hoje” com uma bolinha atrás do número */
+.fc-day-today {
+  background-color: transparent !important;
+  position: relative;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background-color: #2563eb; /* bg-blue-600 */
+  color: white !important;
+  border-radius: 9999px;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* Remove aquela linha azul que aparece embaixo do hoje */
+.fc-day-today::after {
+  display: none !important;
+}
+
+.fc .fc-col-header-cell {
+  background-color: #f9fafb;
+  color: #6b7280; /* Tailwind gray-500 */
+  text-transform: lowercase;
+  font-weight: 600;
+  font-size: 0.875rem; /* text-sm */
+  padding: 0.5rem;
+  border: none;
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+}
+
+.fc-col-header-cell-cushion {
+  text-transform: capitalize !important;
+}
+
+/* Estilo base dos botões (Hoje, Próximo, Anterior) */
+.fc .fc-button {
+  background-color: #ffffff; /* branco */
+  border: 1px solid #d1d5db; /* cinza claro */
+  color: #374151; /* cinza escuro */
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+/* Hover nos botões */
+.fc .fc-button:hover {
+  background-color: #f3f4f6; /* cinza mais claro */
+  color: #1f2937; /* cinza mais escuro */
+}
+
+/* Botão ativo (ex: botão "Hoje" quando está ativo) */
+.fc .fc-button.fc-button-active {
+  background-color: #2563eb; /* azul */
+  border-color: #2563eb;
+  color: #ffffff; /* texto branco */
+}
+
+/* Hover no botão ativo */
+.fc .fc-button.fc-button-active:hover {
+  background-color: #1d4ed8; /* azul mais escuro */
+}
+
+/* Ícones dos botões (< >) */
+.fc .fc-icon {
+  font-size: 16px;
+  color: inherit;
+}
+
+.fc-toolbar-title {
+  font-weight: 700 !important; /* bold */
+  font-size: 1.25rem;
+  color: #111827; /* text-gray-900 */
+}
+
+.fc-header-toolbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.fc-toolbar-chunk:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.fc-toolbar-chunk:first-child .fc-button-group {
+  display: flex;
+  gap: 4px;
+}
+
+.fc-toolbar-chunk:first-child .fc-button-group .fc-today-button {
+  margin-bottom: 4px;
+  order: -1;
+  width: 100%;
+}

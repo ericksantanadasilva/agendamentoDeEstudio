@@ -6,7 +6,7 @@ import {
   KeyIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
-import { handleRegisterWithEmail } from './auth';
+import { handleRegisterWithEmail } from '../../lib/auth';
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
