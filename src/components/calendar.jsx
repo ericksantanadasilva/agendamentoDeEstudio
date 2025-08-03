@@ -35,7 +35,7 @@ export default function Calendar() {
         dayMaxEventRows={3}
         nowIndicator={true}
         editable={false}
-        selectable={true}
+        selectable={false}
         dayCellClassNames={() => 'rounded-md overflow-hidden'}
         eventClassNames={() =>
           'bg-blue-600 text-white text-sm px-2 py-1 rounded shadow'
