@@ -14,7 +14,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     if (!email || !password) {
       alert('Preencha todos os campos!');
       return;
@@ -35,56 +37,60 @@ export default function LoginPage() {
           <img src='google.svg' alt='logo Google' className='h-5 w-5' />
           <span>Continuar com o Google</span>
         </button>
+        <form onSubmit={handleLogin}>
+          <div className='flex items-center border rounded-md px-3 py-2 mb-3'>
+            <UserIcon className='h-5 w-5 text-gray-400' />
+            <input
+              type='email'
+              placeholder='Email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              id='email'
+              name='email'
+              className='ml-2 outline-none flex-1 bg-transparent'
+              autoComplete='email'
+              required
+            />
+          </div>
 
-        <div className='flex items-center border rounded-md px-3 py-2 mb-3'>
-          <UserIcon className='h-5 w-5 text-gray-400' />
-          <input
-            type='email'
-            placeholder='Email'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            id='email'
-            name='email'
-            className='ml-2 outline-none flex-1 bg-transparent'
-            autoComplete='email'
-            required
-          />
-        </div>
+          <div className='flex items-center border rounded-md px-3 py-2 mb-1'>
+            <KeyIcon className='h-5 w-5 text-gray-400' />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder='Senha'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              name='password'
+              id='password'
+              className='ml-2 outline-none flex-1 bg-transparent'
+              autoComplete='current-password'
+              required
+            />
+            <button
+              type='button'
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className='h-5 w-5 text-gray-400' />
+              ) : (
+                <EyeIcon className='h-5 w-5 text-gray-400' />
+              )}
+            </button>
+          </div>
 
-        <div className='flex items-center border rounded-md px-3 py-2 mb-1'>
-          <KeyIcon className='h-5 w-5 text-gray-400' />
-          <input
-            type={showPassword ? 'text' : 'password'}
-            placeholder='Senha'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            name='password'
-            id='password'
-            className='ml-2 outline-none flex-1 bg-transparent'
-            autoComplete='current-password'
-            required
-          />
-          <button type='button' onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? (
-              <EyeSlashIcon className='h-5 w-5 text-gray-400' />
-            ) : (
-              <EyeIcon className='h-5 w-5 text-gray-400' />
-            )}
+          <p className='text-sm text-gray-500 mb-4 cursor-pointer hover:underline'>
+            Esqueceu a senha?
+          </p>
+
+          <button
+            type='submit'
+            className='bg-purple-600 hover:bg-purple-700 text-white w-full py-2 rounded-md font-semibold cursor-pointer'
+          >
+            Acessar
           </button>
-        </div>
+        </form>
 
-        <p className='text-sm text-gray-500 mb-4 cursor-pointer hover:underline'>
-          Esqueceu a senha?
-        </p>
-
-        <button
-          onClick={handleLogin}
-          className='bg-purple-600 hover:bg-purple-700 text-white w-full py-2 rounded-md font-semibold cursor-pointer'
-        >
-          Acessar
-        </button>
-
-        <p className='mt -4 text-sm text-gray-500'>
+        <p className='mt -4 text-sm text-gray-500 mt-2'>
           Não tem uma conta?{' '}
           <a
             href='/register'
