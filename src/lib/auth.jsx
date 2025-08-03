@@ -4,7 +4,7 @@ export const handleGoogleLogin = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: 'http://192.168.0.103:5173/agenda',
+      redirectTo: import.meta.env.VITE_REDIRECT_URL,
     },
   });
 
