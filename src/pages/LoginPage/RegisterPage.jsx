@@ -4,13 +4,14 @@ import {
   EyeSlashIcon,
   UserIcon,
   KeyIcon,
+  IdentificationIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { handleRegisterWithEmail } from '../../lib/auth';
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '', name: '' });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,7 +20,12 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleRegisterWithEmail(form.email, form.password, navigate);
+    await handleRegisterWithEmail(
+      form.email,
+      form.password,
+      form.name,
+      navigate
+    );
   };
 
   return (
@@ -29,6 +35,18 @@ export default function RegisterPage() {
         <h2 className='text-xl font-bold text-gray-700 mb-4'>Criar Conta</h2>
 
         <form onSubmit={handleSubmit}>
+          <div className='flex items-center border rounded-md px-3 py-2 mb-3'>
+            <IdentificationIcon className='h-5 w-5 text-gray-400' />
+            <input
+              type='text'
+              placeholder='Nome'
+              name='name'
+              value={form.name}
+              onChange={handleChange}
+              className='ml-2 outline-none flex-1 bg-transparent'
+              required
+            />
+          </div>
           <div className='flex items-center border rounded-md px-3 py-2 mb-3'>
             <UserIcon className='h-5 w-5 text-gray-400' />
             <input

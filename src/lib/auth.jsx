@@ -13,8 +13,21 @@ export const handleGoogleLogin = async () => {
   }
 };
 
-export const handleRegisterWithEmail = async (email, password, navigate) => {
-  const { error } = await supabase.auth.signUp({ email, password });
+export const handleRegisterWithEmail = async (
+  email,
+  password,
+  name,
+  navigate
+) => {
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: name,
+      },
+    },
+  });
 
   if (error) {
     alert('Erro ao cadastrar ' + error.message);
