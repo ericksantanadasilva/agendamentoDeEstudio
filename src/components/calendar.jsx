@@ -96,7 +96,8 @@ export default function Calendar() {
         eventClick={handleEventClick}
         eventContent={(arg) =>{
           return (
-            <div className='fc-event-title-container'>
+            <div className='flex items-center gap-2'>
+              <span className='w-2 h-2 rounded-full bg-blue-600'></span>
               <span>{arg.event.title}</span>
             </div>
           );
