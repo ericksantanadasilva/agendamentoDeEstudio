@@ -27,7 +27,7 @@ export default function Calendar() {
 
         return {
           id: evento.id,
-          title: `${evento.professor} - ${evento.materia}`,
+          title: `${evento.materia} - ${evento.gravacao}`,
           start: startDateTime,
           end: endDateTime,
           extendedProps: {
@@ -94,6 +94,13 @@ export default function Calendar() {
         events={events}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
+        eventContent={(arg) =>{
+          return (
+            <div className='fc-event-title-container'>
+              <span>{arg.event.title}</span>
+            </div>
+          );
+        }}
       />
     </div>
   );
