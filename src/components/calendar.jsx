@@ -61,6 +61,19 @@ export default function Calendar() {
     console.log('abrir modal de ediçao para ', info.event.extendedProps);
   };
 
+  const getEventColor = (evento) => {
+    const chave = `${evento.studio}:${evento.tipo}`;
+
+    const cores = {
+      'Estudio 170:Transmissão': 'bg-blue-600',
+      'Estudio 170:Gravação': 'bg-green-600',
+      'Estudio 120:Transmissão': 'bg-red-600',
+      'Estudio 120:Gravação': 'bg-purple-600',
+    };
+
+    return cores[chave] || 'bg-gray-400'; //cor padrão caso dê errado
+  };
+
   return (
     <div className='px-4 sm:px-6 lg:px-8 max-w-screen overflow-x-hidden'>
       <FullCalendar
@@ -88,16 +101,17 @@ export default function Calendar() {
         selectable={false}
         dayCellClassNames={() => 'rounded-md overflow-hidden'}
         eventClassNames={() =>
-          'bg-blue-600 text-white text-sm px-2 py-1 rounded shadow'
+          'bg-transparent text-gray-800 text-sm px-2 py-1 rounded shadow cursor-pointer'
         }
         dayHeaderClassNames={() => 'text-zinc-100 bg-zinc-800 py-2'}
         events={events}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
-        eventContent={(arg) =>{
+        eventContent={(arg) => {
+          const cor = getEventColor(arg.event.extendedProps);
           return (
             <div className='flex items-center gap-2'>
-              <span className='w-2 h-2 rounded-full bg-blue-600'></span>
+              <span className={`w-2 h-2 rounded-full ${cor}`}></span>
               <span>{arg.event.title}</span>
             </div>
           );
