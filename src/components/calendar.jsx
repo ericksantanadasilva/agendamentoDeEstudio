@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import '../styles/fullcalendar-overrides.css';
 import { supabase } from '../lib/supabase';
 import EventsByDateModal from './EventsByDateModal';
+import EventModal from './EventModal';
 
 export default function Calendar() {
   const [events, setEvents] = useState([]);
@@ -14,48 +15,50 @@ export default function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [eventsOfSelectedDay, setEventsOfSelectedDay] = useState([]);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      const { data, error } = await supabase.from('agendamentos').select('*');
-
-      if (error) {
-        console.error('Erro ao carregar agendamentos: ', error);
-        return;
-      }
-
-      const formatted = data.map((evento) => {
-        const startDateTime = `${evento.date}T${evento.start}`;
-        const endDateTime = `${evento.date}T${evento.end}`;
-
-        return {
-          id: evento.id,
-          title: `${evento.materia} - ${evento.gravacao}`,
-          start: startDateTime,
-          end: endDateTime,
-          extendedProps: {
-            studio: evento.studio,
-            tecnico: evento.tecnico,
-            gravacao: evento.gravacao,
-            materia: evento.materia,
-            tipo: evento.tipo,
-            user_email: evento.user_email,
-            user_id: evento.user_id,
-          },
-        };
-      });
-      setEvents(formatted);
-      console.log('dados recebidos do supabase: ', data);
-      console.log('Eventos formatados: ', formatted);
-    };
     fetchEvents();
   }, []);
+
+  const fetchEvents = async () => {
+    const { data, error } = await supabase.from('agendamentos').select('*');
+
+    if (error) {
+      console.error('Erro ao carregar agendamentos: ', error);
+      return;
+    }
+
+    const formatted = data.map((evento) => {
+      const startDateTime = `${evento.date}T${evento.start}`;
+      const endDateTime = `${evento.date}T${evento.end}`;
+
+      return {
+        id: evento.id,
+        title: `${evento.materia} - ${evento.gravacao}`,
+        start: startDateTime,
+        end: endDateTime,
+        extendedProps: {
+          studio: evento.studio,
+          tecnico: evento.tecnico,
+          gravacao: evento.gravacao,
+          materia: evento.materia,
+          professor: evento.professor,
+          tipo: evento.tipo,
+          user_email: evento.user_email,
+          user_id: evento.user_id,
+        },
+      };
+    });
+    setEvents(formatted);
+    console.log('dados recebidos do supabase: ', data);
+    console.log('Eventos formatados: ', formatted);
+  };
 
   const handleDateClick = (info) => {
     setSelectedDate(info.dateStr);
     setSelectedEvent(null);
-    // abrir modal de criação aqui
-    console.log('abrir modal de criação para ', info.dateStr);
+    setCreateModalOpen(true);
   };
 
   const handleEventClick = (info) => {
@@ -127,9 +130,33 @@ export default function Calendar() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         events={eventsOfSelectedDay}
-        onEdit={(event) => {
-          console.log('Abrir modal de Edição para: ', event);
+        onEdit={(event, forcedDate) => {
+          if (event) {
+            // edição
+            setSelectedEvent(event);
+            setSelectedDate(event.start);
+          } else {
+            // novo agendamento
+            setSelectedEvent(null);
+            setSelectedDate(`${forcedDate}T08:00`);
+          }
+
           setModalOpen(false);
+          setCreateModalOpen(true);
+        }}
+      />
+      <EventModal
+        open={createModalOpen}
+        onClose={() => {
+          setCreateModalOpen(false);
+          setSelectedEvent(null); // limpa ao fechar
+        }}
+        date={selectedDate ? `${selectedDate}` : null}
+        event={selectedEvent}
+        onSave={() => {
+          setCreateModalOpen(false);
+          setSelectedEvent(null);
+          fetchEvents();
         }}
       />
     </div>
