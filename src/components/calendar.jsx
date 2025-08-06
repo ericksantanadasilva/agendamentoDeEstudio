@@ -89,6 +89,12 @@ export default function Calendar() {
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView='dayGridMonth'
         locale='pt-br'
+        dayMaxEvents={false}
+        views={{
+          dayGridMonth: {
+            moreLinkText: (n) => `+${n} mais`, // Aqui é onde mudamos o texto
+          },
+        }}
         headerToolbar={{
           start: '',
           center: 'title',
