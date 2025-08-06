@@ -6,11 +6,14 @@ import '@fullcalendar/core/locales/pt-br';
 import { useEffect, useState } from 'react';
 import '../styles/fullcalendar-overrides.css';
 import { supabase } from '../lib/supabase';
+import EventsByDateModal from './EventsByDateModal';
 
 export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [eventsOfSelectedDay, setEventsOfSelectedDay] = useState([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -34,6 +37,7 @@ export default function Calendar() {
             studio: evento.studio,
             tecnico: evento.tecnico,
             gravacao: evento.gravacao,
+            materia: evento.materia,
             tipo: evento.tipo,
             user_email: evento.user_email,
             user_id: evento.user_id,
@@ -55,10 +59,12 @@ export default function Calendar() {
   };
 
   const handleEventClick = (info) => {
-    setSelectedEvent(info.event.extendedProps);
-    setSelectedDate(null);
-    //abrir modal de ediçao aqui
-    console.log('abrir modal de ediçao para ', info.event.extendedProps);
+    const clickedDate = info.event.startStr.slice(0, 10); //pega só a data YYYY-MM-DD
+
+    const eventosNoDia = events.filter((e) => e.start.startsWith(clickedDate));
+
+    setEventsOfSelectedDay(eventosNoDia);
+    setModalOpen(true);
   };
 
   const getEventColor = (evento) => {
@@ -115,6 +121,15 @@ export default function Calendar() {
               <span>{arg.event.title}</span>
             </div>
           );
+        }}
+      />
+      <EventsByDateModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        events={eventsOfSelectedDay}
+        onEdit={(event) => {
+          console.log('Abrir modal de Edição para: ', event);
+          setModalOpen(false);
         }}
       />
     </div>
