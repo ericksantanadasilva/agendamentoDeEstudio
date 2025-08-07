@@ -126,7 +126,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     ];
     const faltando = obrigatorios.find((f) => !form[f]);
     if (faltando) {
-      setWarning('⚠️ Preencha todos os campos obrigatórios.');
+      setWarning('⚠️ Preencha todos os campos.');
       return;
     }
 
@@ -157,7 +157,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     });
 
     if (conflito) {
-      setError('Conflito de horário com outro evento no mesmo estúdio');
+      setError('❌ Conflito de horário com outro evento no mesmo estúdio.');
       return;
     }
 

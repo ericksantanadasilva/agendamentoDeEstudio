@@ -92,7 +92,7 @@ export default function Calendar() {
         dayMaxEvents={false}
         views={{
           dayGridMonth: {
-            moreLinkText: (n) => `+${n} eventos`, // Aqui é onde mudamos o texto
+            moreLinkText: (n) => ` +${n} eventos`, // Aqui é onde mudamos o texto
           },
         }}
         moreLinkClick={(arg) => {
