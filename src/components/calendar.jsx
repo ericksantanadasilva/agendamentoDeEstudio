@@ -92,8 +92,22 @@ export default function Calendar() {
         dayMaxEvents={false}
         views={{
           dayGridMonth: {
-            moreLinkText: (n) => `+${n} mais`, // Aqui é onde mudamos o texto
+            moreLinkText: (n) => `+${n} eventos`, // Aqui é onde mudamos o texto
           },
+        }}
+        moreLinkClick={(arg) => {
+          const clickedDate = arg.date; // objeto Date
+          const clickedDateISO = clickedDate.toISOString().slice(0, 10); // YYYY-MM-DD
+
+          const eventosNoDia = events.filter((e) => {
+            const eventoDate = new Date(e.start).toISOString().slice(0, 10);
+            return eventoDate === clickedDateISO;
+          });
+
+          setEventsOfSelectedDay(eventosNoDia);
+          setModalOpen(true);
+
+          return 'none'; // Impede o popover nativo
         }}
         headerToolbar={{
           start: '',
