@@ -175,12 +175,29 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
       user_id: userData?.user?.id || '',
     };
 
-    const { error: saveError } = isEdit
-      ? await supabase.from('agendamentos').update(payload).eq('id', event.id)
-      : await supabase.from('agendamentos').insert(payload);
+    let response;
+    if (isEdit) {
+      response = await supabase
+        .from('agendamentos')
+        .update(payload)
+        .eq('id', event.id)
+        .select(); // importante o .select() para obter dados e erro
+    } else {
+      response = await supabase.from('agendamentos').insert(payload).select();
+    }
 
-    if (saveError) {
-      setError('Erro ao salvar agendamento');
+    if (response.error) {
+      if (response.error.code === '42501') {
+        setError('❌ Você não pode editar agendamentos de outra pessoa.');
+      } else {
+        setError('Erro ao salvar agendamento');
+      }
+      return;
+    }
+
+    if (response.data.length === 0) {
+      // Nenhuma linha afetada = permissão negada ou id inválido
+      setError('❌ Você não pode editar agendamentos de outra pessoa.');
       return;
     }
 
@@ -196,16 +213,26 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     );
     if (!confirmDelete) return;
 
-    const { error: deleteError } = await supabase
+    const response = await supabase
       .from('agendamentos')
       .delete()
-      .eq('id', event.id);
+      .eq('id', event.id)
+      .select(); // .select() para retornar linhas deletadas
 
-    if (deleteError) {
-      setError('Erro ao cancelar agendamento');
+    if (response.error) {
+      if (response.error.code === '42501') {
+        setError('❌ Você não pode excluir agendamentos de outra pessoa.');
+      } else {
+        setError('Erro ao cancelar agendamento');
+      }
       return;
     }
 
+    if (response.data.length === 0) {
+      // Nenhuma linha deletada = permissão negada ou id inválido
+      setError('❌ Você não pode excluir agendamentos de outra pessoa.');
+      return;
+    }
     onSave();
     onClose();
   };
