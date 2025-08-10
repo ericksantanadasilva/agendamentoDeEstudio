@@ -188,6 +188,28 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     onClose();
   };
 
+  const handleDelete = async () => {
+    if (!event) return;
+
+    const confirmDelete = confirm(
+      'Tem certeza que deseja cancelar este agendamento?'
+    );
+    if (!confirmDelete) return;
+
+    const { error: deleteError } = await supabase
+      .from('agendamentos')
+      .delete()
+      .eq('id', event.id);
+
+    if (deleteError) {
+      setError('Erro ao cancelar agendamento');
+      return;
+    }
+
+    onSave();
+    onClose();
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className='max-w-md'>
@@ -293,6 +315,16 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
           <Button onClick={handleSave}>
             {isEdit ? 'Salvar Alterações' : 'Criar Agendamento'}
           </Button>
+
+          {isEdit && (
+            <Button
+              variant='destructive'
+              onClick={handleDelete}
+              className='flex-1'
+            >
+              Cancelar Agendamento
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
