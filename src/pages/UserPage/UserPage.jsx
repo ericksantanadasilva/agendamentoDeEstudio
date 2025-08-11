@@ -72,9 +72,9 @@ export default function UserPage() {
 
   return (
     <div className='flex h-screen'>
-      <Sidebar isOpen={isSidebarOpen} onClose={onCloseSidebar} />
+      <Header onToggleSidebar={onToggleSidebar} />
       <div className="'flex flex-col flex-1">
-        <Header onToggleSidebar={onToggleSidebar} />
+        <Sidebar isOpen={isSidebarOpen} onClose={onCloseSidebar} />
         <div className='p-6 overflow-auto'>
           <h1 className='text-2xl font-bold mb-4'>Meus Agendamentos</h1>
 
