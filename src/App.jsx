@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage/LoginPage';
 import CalendarPage from './pages/CalendarPage/CalendarPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegisterPage from './pages/LoginPage/RegisterPage';
+import UserPage from './pages/UserPage/UserPage';
 
 export default function App() {
   return (
@@ -18,6 +19,14 @@ export default function App() {
           }
         />
         <Route path='/register' element={<RegisterPage />} />
+        <Route
+          path='/meus-agendamentos'
+          element={
+            <ProtectedRoute>
+              <UserPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

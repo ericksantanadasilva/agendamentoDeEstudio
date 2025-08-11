@@ -2,11 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   CalendarIcon,
   ArrowLeftEndOnRectangleIcon,
-  Bars3Icon,
+  ListBulletIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { logout } from '../lib/auth';
-import { useState } from 'react';
 
 export const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -52,6 +51,16 @@ export const Sidebar = ({ isOpen, onClose }) => {
               >
                 <CalendarIcon className='h-6 w-6' />
                 <span>Agenda</span>
+              </li>
+              <li
+                className='flex items-center space-x-2 cursor-pointer hover:text-gray-300'
+                onClick={() => {
+                  navigate('/meus-agendamentos');
+                  setIsOpen(false);
+                }}
+              >
+                <ListBulletIcon className='h-6 w-6' />
+                <span>Meus agendamentos</span>
               </li>
             </ul>
           </nav>

@@ -33,6 +33,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     endTime: '',
     studio: '',
     tipo: '',
+    selectedDate: '',
   });
 
   const [error, setError] = useState('');
@@ -45,17 +46,40 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
   useEffect(() => {
     if (open) {
       if (event) {
-        const start = new Date(event.start);
-        const end = new Date(event.end);
+        const data =
+          event.date ||
+          (event.extendedProps && event.extendedProps.date) ||
+          null;
+
+        let start, end;
+
+        if (data) {
+          // concatena data + hora
+          start = new Date(`${data}T${event.start || event.startTime}`);
+          end = new Date(`${data}T${event.end || event.endTime}`);
+        } else {
+          // se não tem data, tenta criar direto com start/end
+          start = new Date(event.start);
+          end = new Date(event.end);
+        }
+
+        if (isNaN(start) || isNaN(end)) {
+          // trata erro para evitar quebrar a página
+          setError('Data ou horário inválido no evento.');
+          return;
+        }
+
+        const props = event.extendedProps || event;
         setForm({
-          materia: event.extendedProps.materia,
-          proposta: event.extendedProps.gravacao,
-          professor: event.extendedProps.professor || '',
-          tecnico: event.extendedProps.tecnico || '',
+          materia: props.materia,
+          proposta: props.gravacao,
+          professor: props.professor || '',
+          tecnico: props.tecnico || '',
           startTime: format(start, 'HH:mm'),
           endTime: format(end, 'HH:mm'),
-          studio: event.extendedProps.studio,
-          tipo: event.extendedProps.tipo,
+          studio: props.studio,
+          tipo: props.tipo,
+          selectedDate: format(start, 'yyyy-MM-dd'),
         });
       } else {
         setForm({
@@ -67,6 +91,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
           endTime: '',
           studio: '',
           tipo: '',
+          selectedDate: date.split('T')[0],
         });
       }
       setError('');
@@ -162,7 +187,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     }
 
     const payload = {
-      date: date.split('T')[0],
+      date: form.selectedDate,
       start: form.startTime,
       end: form.endTime,
       materia: form.materia,
@@ -247,6 +272,15 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
         </DialogHeader>
 
         <div className='grid gap-4 pt-2'>
+          {/* ALTERAR DATA NO MODO DE EDIÇÃO */}
+          {isEdit && (
+            <Input
+              type='date'
+              value={form.selectedDate}
+              onChange={(e) => handleChange('selectedDate', e.target.value)}
+            />
+          )}
+
           {/* MATÉRIA */}
           <Select
             value={form.materia}
