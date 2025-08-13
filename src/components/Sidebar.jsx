@@ -1,14 +1,17 @@
+import { useUser } from '@/contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import {
   CalendarIcon,
   ArrowLeftEndOnRectangleIcon,
   ListBulletIcon,
   XMarkIcon,
+  UserPlusIcon,
 } from '@heroicons/react/24/outline';
 import { logout } from '../lib/auth';
 
 export const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const { currentUser } = useUser();
 
   const handleLogout = async () => {
     await logout();
@@ -62,6 +65,18 @@ export const Sidebar = ({ isOpen, onClose }) => {
                 <ListBulletIcon className='h-6 w-6' />
                 <span>Meus agendamentos</span>
               </li>
+              {currentUser?.is_admin && (
+                <li
+                  className='flex items-center space-x-2 cursor-pointer hover:text-gray-300'
+                  onClick={() => {
+                    navigate('/admin');
+                    onclose();
+                  }}
+                >
+                  <UserPlusIcon className='h-6 w-6' />
+                  <span>Admin</span>
+                </li>
+              )}
             </ul>
           </nav>
         </div>

@@ -9,7 +9,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 export const EventsByDateModal = ({ isOpen, onClose, events = [], onEdit }) => {
-  console.log('Eventos recebidos no modal: ', events);
   const formatTime = (time) =>
     new Date(time).toLocaleTimeString('pt-BR', {
       hour: '2-digit',

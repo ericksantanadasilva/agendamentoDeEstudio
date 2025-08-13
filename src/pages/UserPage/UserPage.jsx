@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import EventModal from '@/components/EventModal';
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { registrarLog } from '@/utils/registrarLog';
 
 export default function UserPage() {
   const [events, setEvents] = useState([]);
@@ -61,11 +62,14 @@ export default function UserPage() {
   const handleDelete = async (id) => {
     if (!confirm('Tem certeza que deseja excluir este agendamento?')) return;
 
+    const oldData = events.find((event) => event.id === id);
+
     const { error } = await supabase.from('agendamentos').delete().eq('id', id);
     if (error) {
       alert('Erro ao excluir agendamento');
       console.error(error);
     } else {
+      await registrarLog(id, 'delete', oldData, null);
       setEvents(events.filter((event) => event.id !== id));
     }
   };

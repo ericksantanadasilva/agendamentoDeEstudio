@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { format, add } from 'date-fns';
 import { supabase } from '../lib/supabase';
+import { registrarLog } from '@/utils/registrarLog';
 
 export default function EventModal({ open, onClose, date, event, onSave }) {
   const isEdit = !!event;
@@ -201,14 +202,36 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     };
 
     let response;
+    let novoEventoId;
     if (isEdit) {
+      const { data: oldData } = await supabase
+        .from('agendamentos')
+        .select('*')
+        .eq('id', event.id)
+        .single();
+
       response = await supabase
         .from('agendamentos')
         .update(payload)
         .eq('id', event.id)
-        .select(); // importante o .select() para obter dados e erro
+        .select() // importante o .select() para obter dados e erro
+        .single();
+
+      if (!response.error) {
+        await registrarLog(event.id, 'update', oldData, response.data);
+        novoEventoId = response.data.id;
+      }
     } else {
-      response = await supabase.from('agendamentos').insert(payload).select();
+      response = await supabase
+        .from('agendamentos')
+        .insert(payload)
+        .select()
+        .single();
+
+      if (!response.error) {
+        await registrarLog(response.data.id, 'insert', null, response.data);
+        novoEventoId = response.data.id;
+      }
     }
 
     if (response.error) {
@@ -220,13 +243,13 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
       return;
     }
 
-    if (response.data.length === 0) {
-      // Nenhuma linha afetada = permissão negada ou id inválido
-      setError('❌ Você não pode editar agendamentos de outra pessoa.');
-      return;
-    }
+    // if (response.data.length === 0) {
+    //   // Nenhuma linha afetada = permissão negada ou id inválido
+    //   setError('❌ Você não pode editar agendamentos de outra pessoa.');
+    //   return;
+    // }
 
-    onSave();
+    onSave(novoEventoId);
     onClose();
   };
 
@@ -238,11 +261,21 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     );
     if (!confirmDelete) return;
 
+    const { data: oldData } = await supabase
+      .from('agendamentos')
+      .select('*')
+      .eq('id', event.id)
+      .single();
+
     const response = await supabase
       .from('agendamentos')
       .delete()
       .eq('id', event.id)
       .select(); // .select() para retornar linhas deletadas
+
+    if (!response.error) {
+      await registrarLog(event.id, 'delete', oldData, null);
+    }
 
     if (response.error) {
       if (response.error.code === '42501') {

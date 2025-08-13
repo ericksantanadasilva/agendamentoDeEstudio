@@ -51,8 +51,6 @@ export default function Calendar() {
       };
     });
     setEvents(formatted);
-    console.log('dados recebidos do supabase: ', data);
-    console.log('Eventos formatados: ', formatted);
   };
 
   const handleDateClick = (info) => {
