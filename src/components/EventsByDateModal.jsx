@@ -15,17 +15,16 @@ export const EventsByDateModal = ({ isOpen, onClose, events = [], onEdit }) => {
       minute: '2-digit',
     });
 
-  const leftColumnEvents = events.filter(
-    (event) =>
-      event.extendedProps?.studio === 'Estudio 170' ||
-      (event.extendedProps?.studio === 'Estudio 120' &&
-        event.extendedProps?.tipo === 'Transmissão')
+  const studio170Events = events.filter(
+    (event) => event.extendedProps?.studio === 'Estudio 170'
   );
 
-  const rightColumnEvents = events.filter(
-    (event) =>
-      event.extendedProps?.studio === 'Estudio 120' &&
-      event.extendedProps?.tipo === 'Gravação'
+  const studio120Events = events.filter(
+    (event) => event.extendedProps?.studio === 'Estudio 120'
+  );
+
+  const remoteEvents = events.filter(
+    (event) => event.extendedProps?.studio === 'Remoto'
   );
 
   const renderEvent = (event) => (
@@ -60,7 +59,7 @@ export const EventsByDateModal = ({ isOpen, onClose, events = [], onEdit }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='max-w-4xl w-full max-h-[80vh] overflow-y-auto'>
+      <DialogContent className='md:max-w-3xl w-full max-h-[80vh] overflow-y-auto'>
         <DialogHeader>
           <div className='flex items-center gap-2'>
             <DialogTitle className='text-xl font-bold'>
@@ -84,24 +83,29 @@ export const EventsByDateModal = ({ isOpen, onClose, events = [], onEdit }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className='flex flex-col md:grid md:grid-cols-2 gap-4'>
+        <div className='flex flex-col md:grid md:grid-cols-3 gap-4'>
           <ScrollArea className='p-1'>
-            <h3 className='text-lg font-semibold mb-2'>
-              Estúdio 170 + Transmissões Estúdio 120
-            </h3>
-            {leftColumnEvents.length > 0 ? (
-              leftColumnEvents.map(renderEvent)
+            <h3 className='text-lg font-semibold mb-2'>Estúdio 170</h3>
+            {studio170Events.length > 0 ? (
+              studio170Events.map(renderEvent)
             ) : (
               <p className='text-sm text-gray-500'>Nenhum evento.</p>
             )}
           </ScrollArea>
 
           <ScrollArea className='p-1'>
-            <h3 className='text-lg font-semibold mb-2'>
-              Gravações Estúdio 120
-            </h3>
-            {rightColumnEvents.length > 0 ? (
-              rightColumnEvents.map(renderEvent)
+            <h3 className='text-lg font-semibold mb-2'>Estúdio 120</h3>
+            {studio120Events.length > 0 ? (
+              studio120Events.map(renderEvent)
+            ) : (
+              <p className='text-sm text-gray-500'>Nenhum evento.</p>
+            )}
+          </ScrollArea>
+
+          <ScrollArea className='p-1'>
+            <h3 className='text-lg font-semibold mb-2'>Remoto</h3>
+            {remoteEvents.length > 0 ? (
+              remoteEvents.map(renderEvent)
             ) : (
               <p className='text-sm text-gray-500'>Nenhum evento.</p>
             )}

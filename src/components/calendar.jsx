@@ -69,13 +69,12 @@ export default function Calendar() {
   };
 
   const getEventColor = (evento) => {
-    const chave = `${evento.studio}:${evento.tipo}`;
+    const chave = evento.studio;
 
     const cores = {
-      'Estudio 170:Transmissão': 'bg-blue-600',
-      'Estudio 170:Gravação': 'bg-green-600',
-      'Estudio 120:Transmissão': 'bg-red-600',
-      'Estudio 120:Gravação': 'bg-purple-600',
+      'Estudio 120': 'bg-purple-600',
+      'Estudio 170': 'bg-green-600',
+      Remoto: 'bg-red-600',
     };
 
     return cores[chave] || 'bg-gray-400'; //cor padrão caso dê errado

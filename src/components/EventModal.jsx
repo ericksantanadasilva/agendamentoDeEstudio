@@ -398,6 +398,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
             <SelectContent>
               <SelectItem value='Estudio 170'>Estudio 170</SelectItem>
               <SelectItem value='Estudio 120'>Estudio 120</SelectItem>
+              <SelectItem value='Remoto'>Remoto</SelectItem>
             </SelectContent>
           </Select>
 
