@@ -14,9 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { format, add } from 'date-fns';
+import { format, add, set, parseISO } from 'date-fns';
 import { supabase } from '../lib/supabase';
 import { registrarLog } from '@/utils/registrarLog';
+import { buscarTecnicos } from '@/services/tecnicos';
+import { ptBR } from 'date-fns/locale';
 
 export default function EventModal({ open, onClose, date, event, onSave }) {
   const isEdit = !!event;
@@ -39,6 +41,10 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
 
   const [error, setError] = useState('');
   const [warning, setWarning] = useState('');
+
+  const [tecnicosDisponiveis, setTecnicosDisponiveis] = useState([]);
+  const [erroTecnico, setErroTecnico] = useState(null);
+  const [debouncedStartTime, setDebouncedStartTime] = useState('');
 
   useEffect(() => {
     if (open) fetchRegras();
@@ -109,8 +115,10 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
   }, [form.materia, regrasDuracao]);
 
   useEffect(() => {
-    calcularHorarioFim();
-  }, [form.proposta, form.materia, form.startTime]);
+    if (debouncedStartTime && form.materia && form.proposta) {
+      calcularHorarioFim(debouncedStartTime);
+    }
+  }, [form.proposta, form.materia, debouncedStartTime]);
 
   const fetchRegras = async () => {
     const { data, error } = await supabase.from('regras_duracao').select('*');
@@ -120,8 +128,8 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     setMateriaList(materiasUnicas);
   };
 
-  const calcularHorarioFim = () => {
-    if (!form.materia || !form.proposta || !form.startTime) return;
+  const calcularHorarioFim = (startTime) => {
+    if (!form.materia || !form.proposta || !startTime) return;
     const regra = regrasDuracao.find(
       (r) => r.materia === form.materia && r.proposta === form.proposta
     );
@@ -132,9 +140,87 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     setForm((prev) => ({ ...prev, endTime: format(fim, 'HH:mm') }));
   };
 
+  const checarTecnicos = async () => {
+    if (!form.studio || !debouncedStartTime || !form.endTime) return;
+
+    const dataObj = parseISO(form.selectedDate);
+
+    const diaSemana = format(dataObj, 'EEEE', {
+      locale: ptBR,
+    });
+
+    const diasMap = {
+      domingo: 'Domingo',
+      'segunda-feira': 'Segunda',
+      'terça-feira': 'Terça',
+      'quarta-feira': 'Quarta',
+      'quinta-feira': 'Quinta',
+      'sexta-feira': 'Sexta',
+      sábado: 'Sábado',
+    };
+
+    const diaSemanaFormatado = diasMap[diaSemana.toLowerCase()] || diaSemana;
+
+    const { erro, blocos } = await buscarTecnicos(
+      form.studio,
+      diaSemanaFormatado,
+      debouncedStartTime,
+      form.endTime
+    );
+
+    if (erro) {
+      setErroTecnico(erro);
+      setForm((prev) => ({ ...prev, tecnico: '' }));
+      setTecnicosDisponiveis([]);
+      return;
+    }
+
+    if (
+      !blocos ||
+      blocos.length === 0 ||
+      blocos.every((b) => b.tecnicos.length === 0)
+    ) {
+      setErroTecnico('❌ Nenhum técnico disponível nesse horário.');
+      setForm((prev) => ({ ...prev, tecnico: '' }));
+      return;
+    }
+
+    //flatten e pega todos os nomes de tecnicos disponiveis
+    const todosTecnicos = blocos.flatMap((b) => b.tecnicos);
+    const nomesTecnicos = todosTecnicos.join(', ');
+
+    //atualiza estado
+    setForm((prev) => ({ ...prev, tecnico: nomesTecnicos }));
+    setTecnicosDisponiveis(blocos);
+    setErroTecnico(null);
+  };
+
+  useEffect(() => {
+    if (
+      debouncedStartTime &&
+      form.endTime &&
+      form.studio &&
+      form.selectedDate
+    ) {
+      checarTecnicos();
+    } else {
+      setForm((prev) => ({ ...prev, tecnico: '' }));
+      setTecnicosDisponiveis([]);
+      setErroTecnico(null);
+    }
+  }, [debouncedStartTime, form.endTime, form.studio]);
+
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedStartTime(form.startTime);
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [form.startTime]);
 
   const handleSave = async () => {
     setError('');
@@ -146,7 +232,6 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
       'proposta',
       'tipo',
       'professor',
-      'tecnico',
       'startTime',
       'studio',
     ];
@@ -381,11 +466,20 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
             value={form.professor}
             onChange={(e) => handleChange('professor', e.target.value)}
           />
-          <Input
-            placeholder='Técnico'
-            value={form.tecnico}
-            onChange={(e) => handleChange('tecnico', e.target.value)}
-          />
+          {tecnicosDisponiveis.length > 0 ? (
+            <div className='space-y-2'>
+              <p className='text-sm text-gray-600'>Técnicos disponíveis</p>
+              <ul className='text-sm border rounded p-2 bg-gray-50'>
+                {tecnicosDisponiveis.map((b, i) => (
+                  <li key={i}>
+                    {b.inicio} - {b.fim}: {b.tecnicos.join(', ')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <Input placeholder='Técnico' value={form.tecnico} disabled />
+          )}
 
           {/* ESTÚDIO */}
           <Select
@@ -405,6 +499,9 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
           {/* MENSAGENS */}
           {warning && <div className='text-yellow-500 text-sm'>{warning}</div>}
           {error && <div className='text-red-500 text-sm'>{error}</div>}
+          {erroTecnico && (
+            <div className='text-red-500 text-sm'>{erroTecnico}</div>
+          )}
 
           {/* BOTÃO */}
           <Button onClick={handleSave}>
