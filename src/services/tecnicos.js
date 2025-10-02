@@ -17,7 +17,7 @@ export async function buscarTecnicos(estudio, diaSemana, horaInicio, horaFim) {
   const tecnicosFiltrados = data.filter((t) => t.estudio && t.dia_semana);
 
   if (tecnicosFiltrados.length === 0) {
-    return { erro: 'Nenhum técnico disponível', blocos: [] };
+    return { erro: '❌ Nenhum técnico disponível', blocos: [] };
   }
 
   const inicio = horaParaMinutos(horaInicio);
@@ -53,7 +53,7 @@ export async function buscarTecnicos(estudio, diaSemana, horaInicio, horaFim) {
         minutosParaHora(atual)
       );
       return {
-        erro: 'Nenhum técnico disponível para o horário selecionado',
+        erro: '❌ Nenhum técnico disponível para o horário selecionado',
         blocos: [],
       };
     }
@@ -70,5 +70,23 @@ export async function buscarTecnicos(estudio, diaSemana, horaInicio, horaFim) {
   }
 
   console.log('Resultado final: ', resultado);
-  return { erro: null, blocos: resultado };
+
+  const tecnicosCobrindoTudo = tecnicosOrdenados
+    .filter((t) => t.inicioMin <= inicio && t.fimMin >= fim)
+    .map((t) => t.tecnico_nome);
+
+  if (tecnicosCobrindoTudo.length > 0) {
+    console.log('tecnicos cobrindo todo o periodo: ', tecnicosCobrindoTudo);
+    return {
+      erro: null,
+      blocos: resultado,
+      tecnicos: tecnicosCobrindoTudo,
+    };
+  }
+
+  //se nao houver técnico único, retorna todos em revezamento
+  const todosTecnicos = [...new Set(resultado.flatMap((b) => b.tecnicos))];
+  console.log('Revezamento necessário:', todosTecnicos);
+
+  return { erro: null, blocos: resultado, tecnicos: todosTecnicos };
 }

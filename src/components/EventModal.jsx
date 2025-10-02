@@ -19,6 +19,7 @@ import { supabase } from '../lib/supabase';
 import { registrarLog } from '@/utils/registrarLog';
 import { buscarTecnicos } from '@/services/tecnicos';
 import { ptBR } from 'date-fns/locale';
+import { horaParaMinutos } from '@/utils/horario';
 
 export default function EventModal({ open, onClose, date, event, onSave }) {
   const isEdit = !!event;
@@ -141,66 +142,99 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
   };
 
   const checarTecnicos = async () => {
-    if (!form.studio || !debouncedStartTime || !form.endTime) return;
+    try {
+      if (!form.studio || !debouncedStartTime || !form.selectedDate) return;
 
-    const dataObj = parseISO(form.selectedDate);
+      let horaFimParaBuscar = form.endTime;
 
-    const diaSemana = format(dataObj, 'EEEE', {
-      locale: ptBR,
-    });
+      const regra = regrasDuracao.find(
+        (r) => r.materia === form.materia && r.proposta === form.proposta
+      );
 
-    const diasMap = {
-      domingo: 'Domingo',
-      'segunda-feira': 'Segunda',
-      'terça-feira': 'Terça',
-      'quarta-feira': 'Quarta',
-      'quinta-feira': 'Quinta',
-      'sexta-feira': 'Sexta',
-      sábado: 'Sábado',
-    };
+      if (regra && debouncedStartTime) {
+        // monta Date a partir da data selecionada + debouncedStartTime
+        const inicioDate = new Date(
+          `${form.selectedDate}T${debouncedStartTime}`
+        );
+        const [durH, durM] = regra.duracao_em_horas.split(':').map(Number);
+        const fimDate = add(inicioDate, { hours: durH, minutes: durM });
+        horaFimParaBuscar = format(fimDate, 'HH:mm');
 
-    const diaSemanaFormatado = diasMap[diaSemana.toLowerCase()] || diaSemana;
+        // atualiza o form.endTime na UI se estiver diferente (opcional, mas útil)
+        if (form.endTime !== horaFimParaBuscar) {
+          setForm((prev) => ({ ...prev, endTime: horaFimParaBuscar }));
+        }
+      } else {
+        //se não tiver regra ainda, aborta; não queremos buscar com fim invalido
+        // (ou você pode optar por usar form.endTime se tiver certeza de que está correto)
+        if (!form.endTime) return;
+        horaFimParaBuscar = form.endTime;
+      }
 
-    const { erro, blocos } = await buscarTecnicos(
-      form.studio,
-      diaSemanaFormatado,
-      debouncedStartTime,
-      form.endTime
-    );
+      const dataObj = parseISO(form.selectedDate);
 
-    if (erro) {
-      setErroTecnico(erro);
-      setForm((prev) => ({ ...prev, tecnico: '' }));
-      setTecnicosDisponiveis([]);
-      return;
+      const diaSemana = format(dataObj, 'EEEE', {
+        locale: ptBR,
+      });
+
+      const diasMap = {
+        domingo: 'Domingo',
+        'segunda-feira': 'Segunda',
+        'terça-feira': 'Terça',
+        'quarta-feira': 'Quarta',
+        'quinta-feira': 'Quinta',
+        'sexta-feira': 'Sexta',
+        sábado: 'Sábado',
+      };
+
+      const diaSemanaFormatado = diasMap[diaSemana.toLowerCase()] || diaSemana;
+
+      const { erro, blocos, tecnicos } = await buscarTecnicos(
+        form.studio,
+        diaSemanaFormatado,
+        debouncedStartTime,
+        horaFimParaBuscar
+      );
+
+      if (erro) {
+        setErroTecnico(erro);
+        setForm((prev) => ({ ...prev, tecnico: '' }));
+        setTecnicosDisponiveis([]);
+        return;
+      }
+
+      if (!blocos || blocos.length === 0) {
+        setErroTecnico('❌ Nenhum técnico disponível nesse horário.');
+        setForm((prev) => ({ ...prev, tecnico: '' }));
+        setTecnicosDisponiveis([]);
+        return;
+      }
+
+      let nomesSelecionados = [];
+
+      if (Array.isArray(tecnicos) && tecnicos.length > 0) {
+        nomesSelecionados = tecnicos;
+      } else {
+        nomesSelecionados = [...new Set(blocos.flatMap((b) => b.tecnicos))];
+      }
+
+      //atualiza estado
+      setForm((prev) => ({ ...prev, tecnico: nomesSelecionados.join(', ') }));
+      setTecnicosDisponiveis(blocos);
+      setErroTecnico(null);
+    } catch (err) {
+      console.error('Erro em checarTecnicos:', err);
+      setErroTecnico('Erro ao checar técnicos.');
     }
-
-    if (
-      !blocos ||
-      blocos.length === 0 ||
-      blocos.every((b) => b.tecnicos.length === 0)
-    ) {
-      setErroTecnico('❌ Nenhum técnico disponível nesse horário.');
-      setForm((prev) => ({ ...prev, tecnico: '' }));
-      return;
-    }
-
-    //flatten e pega todos os nomes de tecnicos disponiveis
-    const todosTecnicos = blocos.flatMap((b) => b.tecnicos);
-    const nomesTecnicos = todosTecnicos.join(', ');
-
-    //atualiza estado
-    setForm((prev) => ({ ...prev, tecnico: nomesTecnicos }));
-    setTecnicosDisponiveis(blocos);
-    setErroTecnico(null);
   };
 
   useEffect(() => {
     if (
       debouncedStartTime &&
-      form.endTime &&
       form.studio &&
-      form.selectedDate
+      form.selectedDate &&
+      form.materia &&
+      form.proposta
     ) {
       checarTecnicos();
     } else {
@@ -208,7 +242,14 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
       setTecnicosDisponiveis([]);
       setErroTecnico(null);
     }
-  }, [debouncedStartTime, form.endTime, form.studio]);
+  }, [
+    debouncedStartTime,
+    form.selectedDate,
+    form.studio,
+    form.materia,
+    form.proposta,
+    regrasDuracao,
+  ]);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -225,6 +266,10 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
   const handleSave = async () => {
     setError('');
     setWarning('');
+
+    if (!form.tecnico || erroTecnico) {
+      return;
+    }
 
     // Verificação de campos obrigatórios
     const obrigatorios = [
@@ -470,11 +515,37 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
             <div className='space-y-2'>
               <p className='text-sm text-gray-600'>Técnicos disponíveis</p>
               <ul className='text-sm border rounded p-2 bg-gray-50'>
-                {tecnicosDisponiveis.map((b, i) => (
-                  <li key={i}>
-                    {b.inicio} - {b.fim}: {b.tecnicos.join(', ')}
-                  </li>
-                ))}
+                {(() => {
+                  // cálculo do início e fim em minutos
+                  const inicioMin = horaParaMinutos(debouncedStartTime);
+                  const fimMin = horaParaMinutos(form.endTime);
+
+                  // técnicos que cobrem todo o período
+                  const tecnicosCobremTudo = tecnicosDisponiveis
+                    .filter((b) => {
+                      return (
+                        b.inicio &&
+                        b.fim &&
+                        horaParaMinutos(b.inicio) <= inicioMin &&
+                        horaParaMinutos(b.fim) >= fimMin
+                      );
+                    })
+                    .flatMap((b) => b.tecnicos);
+
+                  // se existir, mostra só eles; senão, mostra todos
+                  const nomesParaMostrar =
+                    tecnicosCobremTudo.length > 0
+                      ? [...new Set(tecnicosCobremTudo)]
+                      : [
+                          ...new Set(
+                            tecnicosDisponiveis.flatMap((b) => b.tecnicos)
+                          ),
+                        ];
+
+                  return nomesParaMostrar.map((nome, i) => (
+                    <li key={i}>{nome}</li>
+                  ));
+                })()}
               </ul>
             </div>
           ) : (
