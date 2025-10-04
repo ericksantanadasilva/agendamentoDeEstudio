@@ -287,6 +287,65 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     }
 
     const { data: userData } = await supabase.auth.getUser();
+    const userEmail = userData?.user?.email;
+    const userId = userData?.user?.id;
+
+    //verifica se o usuario é admin
+    const { data: userAdmin } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('email', userEmail)
+      .maybeSingle();
+
+    const isAdmin = userAdmin?.is_admin === true;
+
+    //verificação de permissoes
+    if (isEdit && !isAdmin) {
+      const { data: oldData } = await supabase
+        .from('agendamentos')
+        .select('*')
+        .eq('id', event.id)
+        .single();
+
+      const isOwner =
+        String(oldData?.user_id || '').trim() === String(userId || '').trim();
+
+      //se for o dono do agendamento, checa o tempo de criação
+      if (isOwner) {
+        const createdAt = new Date(oldData.created_at);
+        const now = new Date();
+        const diffMin = (now - createdAt) / 60000;
+
+        if (diffMin > 5) {
+          // passaram-se mais de 5 minutos
+          const { data: permissao } = await supabase
+            .from('permissoes_usuarios')
+            .select('pode_editar')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          if (!permissao?.pode_editar) {
+            setError(
+              '❌ Você só pode editar seu agendamento nos primeiros 5 minutos após criá-lo.'
+            );
+            return;
+          }
+        }
+      } else {
+        // nao é o dono ->  precisa de permissão especial
+        const { data: permissao } = await supabase
+          .from('permissoes_usuarios')
+          .select('pode_editar')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        if (!permissao?.pode_editar) {
+          setError('❌ Você não tem permissão para editar este agendamento.');
+          return;
+        }
+      }
+    }
+
     const novoInicio = new Date(`${date.split('T')[0]}T${form.startTime}`);
     const novoFim = new Date(`${date.split('T')[0]}T${form.endTime}`);
 
@@ -373,12 +432,6 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
       return;
     }
 
-    // if (response.data.length === 0) {
-    //   // Nenhuma linha afetada = permissão negada ou id inválido
-    //   setError('❌ Você não pode editar agendamentos de outra pessoa.');
-    //   return;
-    // }
-
     onSave(novoEventoId);
     onClose();
   };
@@ -391,6 +444,54 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     );
     if (!confirmDelete) return;
 
+    const { data: userData } = await supabase.auth.getUser();
+    const userEmail = userData?.user?.email;
+    const userId = userData?.user?.id;
+
+    // 🔍 Verifica se é admin
+    const { data: userAdmin } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('email', userEmail)
+      .maybeSingle();
+
+    const isAdmin = userAdmin?.is_admin === true;
+
+    // 🧠 Regras de permissão
+    if (!isAdmin) {
+      const { data: oldData } = await supabase
+        .from('agendamentos')
+        .select('user_id, created_at')
+        .eq('id', event.id)
+        .single();
+
+      const isOwner = oldData?.user_id === userId;
+
+      const createdAt = new Date(oldData?.created_at);
+      const now = new Date();
+      const diffMin = (now - createdAt) / 60000;
+
+      // ✅ Dono do agendamento pode cancelar em até 5 minutos
+      if (isOwner && diffMin <= 5) {
+        // tudo certo, segue adiante
+      } else {
+        // 🔍 Checa se o usuário tem permissão de cancelamento
+        const { data: permissao, error: permError } = await supabase
+          .from('permissoes_usuarios')
+          .select('pode_cancelar')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        console.log('Permissao encontrada: ', permissao, permError);
+
+        if (!permissao?.pode_cancelar) {
+          setError('❌ Você não tem permissão para cancelar este agendamento.');
+          return;
+        }
+      }
+    }
+
+    // 🧹 Executa exclusão normalmente
     const { data: oldData } = await supabase
       .from('agendamentos')
       .select('*')
@@ -401,28 +502,15 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
       .from('agendamentos')
       .delete()
       .eq('id', event.id)
-      .select(); // .select() para retornar linhas deletadas
+      .select();
 
     if (!response.error) {
       await registrarLog(event.id, 'delete', oldData, null);
+      onSave();
+      onClose();
+    } else {
+      setError('Erro ao cancelar agendamento');
     }
-
-    if (response.error) {
-      if (response.error.code === '42501') {
-        setError('❌ Você não pode excluir agendamentos de outra pessoa.');
-      } else {
-        setError('Erro ao cancelar agendamento');
-      }
-      return;
-    }
-
-    if (response.data.length === 0) {
-      // Nenhuma linha deletada = permissão negada ou id inválido
-      setError('❌ Você não pode excluir agendamentos de outra pessoa.');
-      return;
-    }
-    onSave();
-    onClose();
   };
 
   return (
