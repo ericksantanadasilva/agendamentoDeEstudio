@@ -21,8 +21,22 @@ const ManagementPage = () => {
   const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  //escala
+  const [escala, setEscala] = useState([]);
+  const [loadingEscala, setLoadingEscala] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [form, setForm] = useState({
+    tecnico_nome: '',
+    estudio: '',
+    dia_semana: '',
+    hora_inicio: '',
+    hora_fim: '',
+  });
+
   useEffect(() => {
     fetchPermissions();
+    fetchEscala();
   }, []);
 
   const fetchPermissions = async () => {
@@ -82,6 +96,70 @@ const ManagementPage = () => {
         prev.map((p) => (p.user_id === userId ? { ...p, [field]: !value } : p))
       );
     }
+  };
+
+  const fetchEscala = async () => {
+    const { data, error } = await supabase
+      .from('escala_tecnicos')
+      .select('*')
+      .order('dia_semana', { ascending: true });
+
+    if (error) console.error('Erro ao buscar escala:', error);
+    else setEscala(data || []);
+    setLoadingEscala(false);
+  };
+
+  const handleEdit = (item) => {
+    setEditItem(item);
+    setForm(item);
+    setShowAddModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('tem certeza que deseja excluir escala?')) return;
+
+    const { error } = await supabase
+      .from('escala_tecnicos')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      console.error('Erro ao excluir escala:', error);
+    } else {
+      setEscala((prev) => prev.filter((e) => e.id !== id));
+    }
+  };
+
+  const handleCancel = () => {
+    setShowAddModal(false);
+    setEditItem(null);
+    setForm({
+      tecnico_nome: '',
+      estudio: '',
+      dia_semana: '',
+      hora_inicio: '',
+      hora_fim: '',
+    });
+  };
+
+  const handleSave = async () => {
+    const { tecnico_nome, estudio, dia_semana, hora_inicio, hora_fim } = form;
+    if (!tecnico_nome || !estudio || !dia_semana || !hora_inicio || !hora_fim)
+      return alert('Preencha todos os campos.');
+
+    if (editItem) {
+      const { error } = await supabase
+        .from('escala_tecnicos')
+        .update(form)
+        .eq('id', editItem.id);
+      if (error) console.error('Erro ao atualizar:', error);
+    } else {
+      const { error } = await supabase.from('escala_tecnicos').insert([form]);
+      if (error) console.error('Erro ao inserir:', error);
+    }
+
+    setShowAddModal(false);
+    setEditItem(null);
+    fetchEscala();
   };
 
   return (
@@ -163,33 +241,112 @@ const ManagementPage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Editar escala dos técnicos</CardTitle>
+                  <Button size='sm' onClick={() => setShowAddModal(true)}>
+                    + Adicionar
+                  </Button>
                 </CardHeader>
                 <CardContent className='space-y-3'>
-                  <div className='flex justify-between items-center py-2 border-b'>
-                    <div>
-                      <p className='font-medium'>Erick Sant'Ana</p>
-                      <p className='text-sm text-gray-500'>
-                        Quarta - 14:00 às 18:00 - Estúdio 120
-                      </p>
-                    </div>
-                    <Button size='sm' variant='outline'>
-                      Editar
-                    </Button>
-                  </div>
-
-                  <div className='flex justify-between items-center py-2 border-b'>
-                    <div>
-                      <p className='font-medium'>Julia</p>
-                      <p className='text-sm text-gray-500'>
-                        Segunda — 08:00 às 12:00 — Estúdio 170
-                      </p>
-                    </div>
-                    <Button size='sm' variant='outline'>
-                      Editar
-                    </Button>
-                  </div>
+                  {loadingEscala ? (
+                    <p>Carregando escala...</p>
+                  ) : escala.length === 0 ? (
+                    <p>Nenhuma escala cadastrada.</p>
+                  ) : (
+                    escala.map((item) => (
+                      <div className='flex justify-between items-center py-2 border-b'>
+                        <div>
+                          <p className='font-medium'>{item.tecnico_nome}</p>
+                          <p className='text-sm text-gray-500'>
+                            {item.dia_semana} - {item.hora_inicio} às{' '}
+                            {item.hora_fim} - {item.estudio}
+                          </p>
+                        </div>
+                        <div className='flex gap-2'>
+                          <Button
+                            size='sm'
+                            variant='outline'
+                            onClick={() => handleEdit(item)}>
+                            Editar
+                          </Button>
+                          <Button
+                            size='sm'
+                            variant='destructive'
+                            onClick={() => handleDelete(item.id)}>
+                            Excluir
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </CardContent>
               </Card>
+
+              {/* Modal de adicionar/editar escala */}
+              {showAddModal && (
+                <div className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'>
+                  <div className='bg-white dark:bg-neutral-900 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-xl'>
+                    <h2 className='text-xl font-semibold mb-2'>
+                      {editItem ? 'Editar Escala' : 'Nova Escala'}
+                    </h2>
+                    <div className='space-y-3'>
+                      <input
+                        type='text'
+                        className='w-full p-2 rounded border bg-transparent'
+                        placeholder='Nome do técnico'
+                        value={form.tecnico_nome}
+                        onChange={(e) =>
+                          setForm({ ...form, tecnico_nome: e.target.value })
+                        }
+                      />
+                      <input
+                        type='text'
+                        className='w-full p-2 rounded border bg-transparent'
+                        placeholder='Dia da semana'
+                        value={form.dia_semana}
+                        onChange={(e) =>
+                          setForm({ ...form, dia_semana: e.target.value })
+                        }
+                      />
+                      <div className='flex gap-2'>
+                        <input
+                          type='time'
+                          className='w-full p-2 rounded border bg-transparent'
+                          value={form.hora_inicio}
+                          onChange={(e) =>
+                            setForm({ ...form, hora_inicio: e.target.value })
+                          }
+                        />
+                        <input
+                          type='time'
+                          className='w-full p-2 rounded border bg-transparent'
+                          value={form.hora_fim}
+                          onChange={(e) =>
+                            setForm({ ...form, hora_fim: e.target.value })
+                          }
+                        />
+                      </div>
+                      <select
+                        className='w-full p-2 rounded border bg-transparent'
+                        value={form.estudio}
+                        onChange={(e) =>
+                          setForm({ ...form, estudio: e.target.value })
+                        }>
+                        <option value=''>Selecione o estúdio</option>
+                        <option value='Estúdio 170'>Estudio 170</option>
+                        <option value='Estúdio 120'>Estudio 120</option>
+                      </select>
+                    </div>
+
+                    <div className='flex justify-end gap-2 mt-4'>
+                      <Button variant='outline' onClick={handleCancel}>
+                        Cancelar
+                      </Button>
+                      <Button onClick={handleSave}>
+                        {editItem ? 'Salvar alterações' : 'Adicionar'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </AccordionContent>
           </AccordionItem>
 
