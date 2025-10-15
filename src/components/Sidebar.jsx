@@ -6,6 +6,7 @@ import {
   ListBulletIcon,
   XMarkIcon,
   UserPlusIcon,
+  WrenchScrewdriverIcon,
 } from '@heroicons/react/24/outline';
 import { logout } from '../lib/auth';
 
@@ -27,18 +28,15 @@ export const Sidebar = ({ isOpen, onClose }) => {
       {isOpen && (
         <div
           className='fixed inset-0 bg-slate-950 opacity-50 z-60'
-          onClick={handleBackdropClick}
-        ></div>
+          onClick={handleBackdropClick}></div>
       )}
       <div
         className={`fixed top-0 left-0 h-full bg-gray-800 text-white w-64 p-4 shadow-lg transform transition-transform duration-300 z-60 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
+        }`}>
         <button
           onClick={handleBackdropClick}
-          className='absolute top-4 right-4 text-white'
-        >
+          className='absolute top-4 right-4 text-white'>
           <XMarkIcon className='h-6 w-6' />
         </button>
         <div>
@@ -50,8 +48,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
                 onClick={() => {
                   navigate('/agenda');
                   setIsOpen(false);
-                }}
-              >
+                }}>
                 <CalendarIcon className='h-6 w-6' />
                 <span>Agenda</span>
               </li>
@@ -60,8 +57,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
                 onClick={() => {
                   navigate('/meus-agendamentos');
                   setIsOpen(false);
-                }}
-              >
+                }}>
                 <ListBulletIcon className='h-6 w-6' />
                 <span>Meus agendamentos</span>
               </li>
@@ -71,20 +67,27 @@ export const Sidebar = ({ isOpen, onClose }) => {
                   onClick={() => {
                     navigate('/admin');
                     onclose();
-                  }}
-                >
+                  }}>
                   <UserPlusIcon className='h-6 w-6' />
                   <span>Admin</span>
                 </li>
               )}
+              <li
+                className='flex items-center space-x-2 cursor-pointer hover:text-gray-300'
+                onClick={() => {
+                  navigate('/Gerencia');
+                  onclose();
+                }}>
+                <WrenchScrewdriverIcon className='h-6 w-6' />
+                <span>Gerência</span>
+              </li>
             </ul>
           </nav>
         </div>
         <div className='absolute bottom-4 left-4'>
           <button
             onClick={handleLogout}
-            className='flex items-center space-x-2 text-red-400 hover:text-red-600'
-          >
+            className='flex items-center space-x-2 text-red-400 hover:text-red-600'>
             <ArrowLeftEndOnRectangleIcon className='h-6 w-6' />
             <span>Sair</span>
           </button>

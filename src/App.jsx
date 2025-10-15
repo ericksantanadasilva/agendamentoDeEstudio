@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RegisterPage from './pages/LoginPage/RegisterPage';
 import UserPage from './pages/UserPage/UserPage';
 import AdminPage from './pages/AdminPage/AdminPage';
+import ManagementPage from './pages/ManagementPage/ManagementPage';
 
 export default function App() {
   return (
@@ -35,6 +36,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/Gerencia'
+            element={
+              <ProtectedRoute>
+                <ManagementPage />
               </ProtectedRoute>
             }
           />
