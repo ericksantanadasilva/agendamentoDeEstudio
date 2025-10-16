@@ -40,13 +40,6 @@ export const handleRegisterWithEmail = async (
   if (error) {
     alert('Erro ao cadastrar: ' + error.message);
   } else {
-    // data.user pode ser null se o email precisar ser confirmado
-    const user = data.user || data.session?.user;
-
-    if (user) {
-      await populateTables(user); // popula suas tabelas
-    }
-
     alert('Cadastro realizado! Você pode fazer login agora.');
     navigate('/');
   }
