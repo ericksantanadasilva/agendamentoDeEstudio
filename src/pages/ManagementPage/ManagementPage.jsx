@@ -56,22 +56,11 @@ const ManagementPage = () => {
       return;
     }
 
-    //Busca os nomes dos usuários pelo auth.users (join manual)
-    const userIds = permissionsData.map((p) => p.user_id);
-    const { data: usersData, error: userError } = await supabase
-      .from('users')
-      .select('id, email')
-      .in('id', userIds);
-
-    if (userError) {
-      console.error('Erro ao buscar emails de usuários:', userError);
-    }
-
     // Faz o merge entre permissões e nomes
-    const merged = permissionsData.map((perm) => {
-      const user = usersData?.find((u) => u.id === perm.user_id);
-      return { ...perm, email: user ? user.email : 'usuario desconhecido' };
-    });
+    const merged = permissionsData.map((perm) => ({
+      ...perm,
+      displayName: perm.nome || 'usuario sem nome',
+    }));
 
     setPermissions(merged);
     setLoading(false);
@@ -180,7 +169,7 @@ const ManagementPage = () => {
             </AccordionTrigger>
             <AccordionContent>
               <Card>
-                <CardHeader>
+                <CardHeader className='border-b'>
                   <CardTitle>Gerenciar permissões dos usúarios</CardTitle>
                 </CardHeader>
                 <CardContent className='space-y-3'>
@@ -192,9 +181,10 @@ const ManagementPage = () => {
                     permissions.map((user) => (
                       <div
                         key={user.user_id}
-                        className='flex justify-between items-center py-2 border-b'>
+                        className='flex justify-between items-center py-2 border-b'
+                      >
                         <div>
-                          <p className='font-medium'>{user.email}</p>
+                          <p className='font-medium'>{user.displayName}</p>
                           <div className='flex gap-4 text-sm text-gray-500 mt-1'>
                             <div className='flex items-center gap-2'>
                               <Switch
@@ -206,6 +196,7 @@ const ManagementPage = () => {
                                     val
                                   )
                                 }
+                                className='data-[state=checked]:bg-green-500'
                               />
                               <span>Pode Editar</span>
                             </div>
@@ -219,6 +210,7 @@ const ManagementPage = () => {
                                     val
                                   )
                                 }
+                                className='data-[state=checked]:bg-green-500'
                               />
                               <span>Pode cancelar</span>
                             </div>
@@ -239,7 +231,7 @@ const ManagementPage = () => {
             </AccordionTrigger>
             <AccordionContent>
               <Card>
-                <CardHeader>
+                <CardHeader className='flex justify-between items-center py-2 border-b'>
                   <CardTitle>Editar escala dos técnicos</CardTitle>
                   <Button size='sm' onClick={() => setShowAddModal(true)}>
                     + Adicionar
@@ -264,13 +256,15 @@ const ManagementPage = () => {
                           <Button
                             size='sm'
                             variant='outline'
-                            onClick={() => handleEdit(item)}>
+                            onClick={() => handleEdit(item)}
+                          >
                             Editar
                           </Button>
                           <Button
                             size='sm'
                             variant='destructive'
-                            onClick={() => handleDelete(item.id)}>
+                            onClick={() => handleDelete(item.id)}
+                          >
                             Excluir
                           </Button>
                         </div>
@@ -329,7 +323,8 @@ const ManagementPage = () => {
                         value={form.estudio}
                         onChange={(e) =>
                           setForm({ ...form, estudio: e.target.value })
-                        }>
+                        }
+                      >
                         <option value=''>Selecione o estúdio</option>
                         <option value='Estúdio 170'>Estudio 170</option>
                         <option value='Estúdio 120'>Estudio 120</option>
@@ -357,7 +352,7 @@ const ManagementPage = () => {
             </AccordionTrigger>
             <AccordionContent>
               <Card>
-                <CardHeader>
+                <CardHeader className='border-b'>
                   <CardTitle>Gerenciar aulas fixas semanais</CardTitle>
                 </CardHeader>
                 <CardContent className='space-y-3'>

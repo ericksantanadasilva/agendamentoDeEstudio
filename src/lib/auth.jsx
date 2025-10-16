@@ -1,5 +1,7 @@
 import { supabase } from './supabase';
+import { populateTables } from './populateTables';
 
+// Login com Google
 export const handleGoogleLogin = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -11,15 +13,21 @@ export const handleGoogleLogin = async () => {
   if (error) {
     console.error('Erro ao fazer login com o Google: ', error.message);
   }
+
+  // OBS: Se usar redirectTo, o usuário só estará disponível após o redirecionamento.
+  // Você deve chamar populateTables depois do retorno, por exemplo:
+  // const { data: { user } } = await supabase.auth.getUser();
+  // if (user) await populateTables(user);
 };
 
+// Registro por email e senha
 export const handleRegisterWithEmail = async (
   email,
   password,
   name,
   navigate
 ) => {
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -30,23 +38,36 @@ export const handleRegisterWithEmail = async (
   });
 
   if (error) {
-    alert('Erro ao cadastrar ' + error.message);
+    alert('Erro ao cadastrar: ' + error.message);
   } else {
+    // data.user pode ser null se o email precisar ser confirmado
+    const user = data.user || data.session?.user;
+
+    if (user) {
+      await populateTables(user); // popula suas tabelas
+    }
+
     alert('Cadastro realizado! Você pode fazer login agora.');
     navigate('/');
   }
 };
 
+// Login com email e senha
 export const handleLoginWithEmail = async (email, password, navigate) => {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
   if (error) {
     alert('Erro ao fazer login: ' + error.message);
-  } else {
+  } else if (data?.user) {
+    await populateTables(data.user); // popula tabelas para usuários existentes
     navigate('/agenda');
   }
 };
 
+// Logout
 export const logout = async () => {
   await supabase.auth.signOut();
 };

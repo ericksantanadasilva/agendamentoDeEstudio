@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { supabase } from './lib/supabase';
+import { populateTables } from './lib/populateTables';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { UserProvider } from './contexts/UserContext';
 import LoginPage from './pages/LoginPage/LoginPage';
@@ -9,6 +12,19 @@ import AdminPage from './pages/AdminPage/AdminPage';
 import ManagementPage from './pages/ManagementPage/ManagementPage';
 
 export default function App() {
+  // Este useEffect vai popular as tabelas para qualquer usuário logado
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        await populateTables(user);
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <UserProvider>
       <BrowserRouter>
