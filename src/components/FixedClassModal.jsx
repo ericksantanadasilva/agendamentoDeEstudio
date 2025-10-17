@@ -101,7 +101,7 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
 
         <div className='space-y-3'>
           <div>
-            <Label className='mb-1'>Matéria</Label>
+            <Label className='mb-1.5'>Matéria</Label>
             <Select
               value={form.materia}
               onValueChange={(v) => handleChange('materia', v)}
@@ -120,7 +120,7 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
           </div>
 
           <div>
-            <Label>Proposta</Label>
+            <Label className='mb-1.5'>Proposta</Label>
             <Input
               value={form.proposta}
               onChange={(e) => handleChange('proposta', e.target.value)}
@@ -128,7 +128,7 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
           </div>
 
           <div>
-            <Label>Tipo</Label>
+            <Label className='mb-1.5'>Tipo</Label>
             <Select
               value={form.tipo}
               onValueChange={(v) => handleChange('tipo', v)}
@@ -144,7 +144,7 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
           </div>
 
           <div>
-            <label>Dia da Semana</label>
+            <label className='mb-1.5'>Dia da Semana</label>
             <Select
               value={form.dia_semana}
               onValueChange={(v) => handleChange('dia_semana', v)}
@@ -172,7 +172,7 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
 
           <div className='flex gap-2'>
             <div className='flex-1'>
-              <Label>Hora Início</Label>
+              <Label className='mb-1.5'>Hora Início</Label>
               <Input
                 type='time'
                 value={form.hora_inicio}
@@ -180,7 +180,7 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
               />
             </div>
             <div className='flex-1'>
-              <Label>Hora Fim</Label>
+              <Label className='mb-1.5'>Hora Fim</Label>
               <Input
                 type='time'
                 value={form.hora_fim}
@@ -191,14 +191,14 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
 
           <div className='flex gap-2'>
             <div className='flex-1'>
-              <Label>Professor</Label>
+              <Label className='mb-1.5'>Professor</Label>
               <Input
                 value={form.professor}
                 onChange={(e) => handleChange('professor', e.target.value)}
               />
             </div>
             <div className='flex-1'>
-              <Label>Técnico</Label>
+              <Label className='mb-1.5'>Técnico</Label>
               <Input
                 value={form.tecnico}
                 onChange={(e) => handleChange('tecnico', e.target.value)}
@@ -207,7 +207,7 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
           </div>
 
           <div>
-            <Label>Estúdio</Label>
+            <Label className='mb-1.5'>Estúdio</Label>
             <Select
               value={form.estudio}
               onValueChange={(v) => handleChange('estudio', v)}
