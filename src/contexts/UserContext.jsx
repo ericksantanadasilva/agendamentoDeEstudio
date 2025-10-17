@@ -17,7 +17,7 @@ export function UserProvider({ children }) {
         // Buscar is_admin na tabela users
         const { data: userData, error } = await supabase
           .from('users')
-          .select('id, email, is_admin')
+          .select('id, email, is_admin, is_management')
           .eq('id', user.id)
           .single();
 
