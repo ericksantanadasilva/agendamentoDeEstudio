@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/lib/supabase';
+import FixedClassModal from '@/components/FixedClassModal';
+import { formatTime } from '@/utils/formatTime';
 
 const ManagementPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -34,9 +36,14 @@ const ManagementPage = () => {
     hora_fim: '',
   });
 
+  const [aulas, setAulas] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+
   useEffect(() => {
     fetchPermissions();
     fetchEscala();
+    fetchAulas();
   }, []);
 
   const fetchPermissions = async () => {
@@ -118,6 +125,24 @@ const ManagementPage = () => {
     }
   };
 
+  const handleDeleteAula = async () => {
+    if (!editData) return;
+    const confirmar = confirm('Tem certeza que deseja excluir esta aula fixa?');
+    if (!confirmar) return;
+
+    const { error } = await supabase
+      .from('aulas_fixas')
+      .delete()
+      .eq('id', editData.id);
+
+    if (error) {
+      console.error('Erro ao excluir aula fixa:', error);
+      alert('Erro ao excluir aula.');
+      return;
+    }
+    fetchAulas();
+  };
+
   const handleCancel = () => {
     setShowAddModal(false);
     setEditItem(null);
@@ -149,6 +174,14 @@ const ManagementPage = () => {
     setShowAddModal(false);
     setEditItem(null);
     fetchEscala();
+  };
+
+  const fetchAulas = async () => {
+    const { data } = await supabase
+      .from('aulas_fixas')
+      .select('*')
+      .order('dia_semana');
+    setAulas(data || []);
   };
 
   return (
@@ -248,8 +281,8 @@ const ManagementPage = () => {
                         <div>
                           <p className='font-medium'>{item.tecnico_nome}</p>
                           <p className='text-sm text-gray-500'>
-                            {item.dia_semana} - {item.hora_inicio} às{' '}
-                            {item.hora_fim} - {item.estudio}
+                            {item.dia_semana} - {formatTime(item.hora_inicio)}{' '}
+                            às {formatTime(item.hora_fim)} - {item.estudio}
                           </p>
                         </div>
                         <div className='flex gap-2'>
@@ -352,24 +385,65 @@ const ManagementPage = () => {
             </AccordionTrigger>
             <AccordionContent>
               <Card>
-                <CardHeader className='border-b'>
+                <CardHeader className='flex justify-between items-center py-2 border-b'>
                   <CardTitle>Gerenciar aulas fixas semanais</CardTitle>
+                  <Button
+                    size='sm'
+                    onClick={() => {
+                      setEditData(null);
+                      setModalOpen(true);
+                    }}
+                  >
+                    + Adicionar
+                  </Button>
                 </CardHeader>
                 <CardContent className='space-y-3'>
-                  <div className='flex justify-between items-center py-2 border-b'>
-                    <div>
-                      <p className='font-medium'>Português — Top 5 ENEM</p>
-                      <p className='text-sm text-gray-500'>
-                        Tipo: Gravação | Quarta — 14:00 às 15:00
-                      </p>
-                      <p className='text-sm text-gray-500'>
-                        Prof: Ana Lima | Tec: Lara | Estúdio 170
-                      </p>
+                  {aulas.map((aula) => (
+                    <div
+                      key={aula.id}
+                      className='flex justify-between items-center py-2 border-b'
+                    >
+                      <div>
+                        <p className='font-medium'>
+                          {aula.materia} — {aula.proposta}
+                        </p>
+                        <p className='text-sm text-gray-500'>
+                          Tipo: {aula.tipo} | {aula.dia_semana} —{' '}
+                          {formatTime(aula.hora_inicio)} às{' '}
+                          {formatTime(aula.hora_fim)}
+                        </p>
+                        <p className='text-sm text-gray-500'>
+                          Prof: {aula.professor} | Tec: {aula.tecnico} |{' '}
+                          {aula.estudio}
+                        </p>
+                      </div>
+                      <div className='flex gap-2'>
+                        <Button
+                          size='sm'
+                          variant='outline'
+                          onClick={() => {
+                            setEditData(aula);
+                            setModalOpen(true);
+                          }}
+                        >
+                          Editar
+                        </Button>
+                        <Button
+                          variant='destructive'
+                          onClick={() => handleDeleteAula(aula.id)}
+                        >
+                          Excluir
+                        </Button>
+                      </div>
                     </div>
-                    <Button size='sm' variant='outline'>
-                      Editar
-                    </Button>
-                  </div>
+                  ))}
+
+                  <FixedClassModal
+                    open={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                    onSaved={fetchAulas}
+                    editData={editData}
+                  />
                 </CardContent>
               </Card>
             </AccordionContent>
