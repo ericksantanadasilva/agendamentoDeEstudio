@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import { useUser } from '@/contexts/UserContext';
+import { Switch } from '@/components/ui/switch';
 
 export default function AdminPage() {
   const { currentUser } = useUser();
@@ -21,7 +22,7 @@ export default function AdminPage() {
     setLoadingUsers(true);
     const { data, error } = await supabase
       .from('users')
-      .select('id, email, is_admin')
+      .select('id, email, is_admin, is_management')
       .order('email');
 
     if (error) {
@@ -58,6 +59,19 @@ export default function AdminPage() {
 
     if (error) {
       console.error('Erro ao atualizar admin: ', error);
+    } else {
+      fetchUsers();
+    }
+  };
+
+  const toggleManagement = async (userId, currentStatus) => {
+    const { error } = await supabase
+      .from('users')
+      .update({ is_management: !currentStatus })
+      .eq('id', userId);
+
+    if (error) {
+      console.error('Erro ao atualizar gerência:', error);
     } else {
       fetchUsers();
     }
@@ -112,41 +126,59 @@ export default function AdminPage() {
 
           {/* Seção Admins */}
           <section className='bg-gray-50 rounded-lg shadow p-4'>
-            <h2 className='text-xl font-semibold mb-4'>Gerenciar Admins</h2>
+            <h2 className='text-xl font-semibold mb-4'>
+              Gerenciar permissões dos usuários
+            </h2>
             {loadingUsers ? (
               <p>Carregando usuários...</p>
             ) : (
-              <table className='w-full border-collapse'>
-                <thead>
-                  <tr className='bg-gray-100'>
-                    <th className='p-2 border'>Email</th>
-                    <th className='p-2 border'>Admin</th>
-                    <th className='p-2 border'>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users
-                    .filter((u) => u.id !== currentUser?.id)
-                    .map((u) => (
-                      <tr key={u.id} className='border-b'>
-                        <td className='p-2 border'>{u.email}</td>
-                        <td className='p-2 border'>
-                          {u.is_admin ? 'Sim' : 'Não'}
-                        </td>
-                        <td className='p-2 border'>
-                          <button
-                            onClick={() => toggleAdmin(u.id, u.is_admin)}
-                            className={`px-3 py-1 rounded text-white cursor-pointer ${
-                              u.is_admin ? 'bg-red-500' : 'bg-green-500'
-                            }`}
-                          >
-                            {u.is_admin ? 'Remover Admin' : 'Tornar Admin'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+              <div className='space-y-3'>
+                {users
+                  .filter((u) => u.id !== currentUser?.id)
+                  .map((u) => (
+                    <div
+                      key={u.id}
+                      className='flex items-center justify-between border rounded-lg p-3 bg-white shadow-sm'
+                    >
+                      <div className='text-gray-700 font-medium'>{u.email}</div>
+                      <div className='flex items-center space-x-6'>
+                        {/* Switch Admin */}
+                        <div className='flex items-center space-x-2'>
+                          <Switch
+                            checked={u.is_admin}
+                            onCheckedChange={() =>
+                              toggleAdmin(u.id, u.is_admin)
+                            }
+                            className={
+                              u.is_admin
+                                ? 'data-[state=checked]:bg-green-500'
+                                : ''
+                            }
+                          />
+                          <span className='text-sm text-gray-600'>Admin</span>
+                        </div>
+
+                        {/* Switch Gerência */}
+                        <div className='flex items-center space-x-2'>
+                          <Switch
+                            checked={u.is_management}
+                            onCheckedChange={() =>
+                              toggleManagement(u.id, u.is_management)
+                            }
+                            className={
+                              u.is_management
+                                ? 'data-[state=checked]:bg-blue-500'
+                                : ''
+                            }
+                          />
+                          <span className='text-sm text-gray-600'>
+                            Gerência
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
             )}
           </section>
 
