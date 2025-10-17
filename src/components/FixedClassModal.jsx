@@ -144,7 +144,7 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
           </div>
 
           <div>
-            <label className='mb-1.5'>Dia da Semana</label>
+            <Label className='mb-1.5'>Dia da Semana</Label>
             <Select
               value={form.dia_semana}
               onValueChange={(v) => handleChange('dia_semana', v)}
