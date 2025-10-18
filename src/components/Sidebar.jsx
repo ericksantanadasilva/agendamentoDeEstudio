@@ -132,7 +132,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
             </ul>
           </nav>
         </div>
-        <div className='absolute bottom-4 left-4'>
+        <div className='absolute bottom-4 left-7'>
           <button
             onClick={handleLogout}
             className='flex items-center space-x-2 text-red-400 hover:text-red-600'
