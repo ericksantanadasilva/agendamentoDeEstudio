@@ -20,6 +20,7 @@ import { registrarLog } from '@/utils/registrarLog';
 import { buscarTecnicos } from '@/services/tecnicos';
 import { ptBR } from 'date-fns/locale';
 import { horaParaMinutos } from '@/utils/horario';
+import { Label } from './ui/label';
 
 export default function EventModal({ open, onClose, date, event, onSave }) {
   const isEdit = !!event;
@@ -515,167 +516,153 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className='max-w-md'>
+      <DialogContent className='w-full max-w-md h-auto'>
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Editar Agendamento' : 'Novo Agendamento'}
           </DialogTitle>
         </DialogHeader>
 
-        <div className='grid gap-4 pt-2'>
-          {/* ALTERAR DATA NO MODO DE EDIÇÃO */}
+        <div className='grid gap-3 pt-2'>
+          {/* Data */}
           {isEdit && (
             <Input
               type='date'
               value={form.selectedDate}
               onChange={(e) => handleChange('selectedDate', e.target.value)}
+              className='w-full'
             />
           )}
 
-          {/* MATÉRIA */}
-          <Select
-            value={form.materia}
-            onValueChange={(val) => handleChange('materia', val)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder='Selecione a matéria' />
-            </SelectTrigger>
-            <SelectContent>
-              {materiaList.map((mat) => (
-                <SelectItem key={mat} value={mat}>
-                  {mat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* PROPOSTA */}
-          <Select
-            value={form.proposta}
-            onValueChange={(val) => handleChange('proposta', val)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder='Selecione a proposta' />
-            </SelectTrigger>
-            <SelectContent>
-              {propostaList.map((prop) => (
-                <SelectItem key={prop} value={prop}>
-                  {prop}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* TIPO */}
-          <Select
-            value={form.tipo}
-            onValueChange={(val) => handleChange('tipo', val)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder='Selecione o tipo' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='Gravação'>Gravação</SelectItem>
-              <SelectItem value='Transmissão'>Transmissão</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* HORÁRIO */}
-          <Input
-            type='time'
-            value={form.startTime}
-            onChange={(e) => handleChange('startTime', e.target.value)}
-          />
-          <Input
-            type='time'
-            value={form.endTime}
-            disabled
-            placeholder='Fim (automático)'
-          />
-
-          {/* PROFESSOR E TÉCNICO */}
-          <Input
-            placeholder='Professor'
-            value={form.professor}
-            onChange={(e) => handleChange('professor', e.target.value)}
-          />
-          {tecnicosDisponiveis.length > 0 ? (
-            <div className='space-y-2'>
-              <p className='text-sm text-gray-600'>Técnicos disponíveis</p>
-              <ul className='text-sm border rounded p-2 bg-gray-50'>
-                {(() => {
-                  // cálculo do início e fim em minutos
-                  const inicioMin = horaParaMinutos(debouncedStartTime);
-                  const fimMin = horaParaMinutos(form.endTime);
-
-                  // técnicos que cobrem todo o período
-                  const tecnicosCobremTudo = tecnicosDisponiveis
-                    .filter((b) => {
-                      return (
-                        b.inicio &&
-                        b.fim &&
-                        horaParaMinutos(b.inicio) <= inicioMin &&
-                        horaParaMinutos(b.fim) >= fimMin
-                      );
-                    })
-                    .flatMap((b) => b.tecnicos);
-
-                  // se existir, mostra só eles; senão, mostra todos
-                  const nomesParaMostrar =
-                    tecnicosCobremTudo.length > 0
-                      ? [...new Set(tecnicosCobremTudo)]
-                      : [
-                          ...new Set(
-                            tecnicosDisponiveis.flatMap((b) => b.tecnicos)
-                          ),
-                        ];
-
-                  return nomesParaMostrar.map((nome, i) => (
-                    <li key={i}>{nome}</li>
-                  ));
-                })()}
-              </ul>
+          {/* Matéria e Proposta em coluna */}
+          <div className='grid gap-2'>
+            <div>
+              <Label className='mb-1'>Matéria</Label>
+              <Select
+                value={form.materia}
+                onValueChange={(val) => handleChange('materia', val)}
+                className='w-full'
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='Selecione a matéria' />
+                </SelectTrigger>
+                <SelectContent>
+                  {materiaList.map((mat) => (
+                    <SelectItem key={mat} value={mat}>
+                      {mat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          ) : (
-            <Input placeholder='Técnico' value={form.tecnico} disabled />
-          )}
 
-          {/* ESTÚDIO */}
-          <Select
-            value={form.studio}
-            onValueChange={(val) => handleChange('studio', val)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder='Selecione o estúdio' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='Estudio 170'>Estudio 170</SelectItem>
-              <SelectItem value='Estudio 120'>Estudio 120</SelectItem>
-              <SelectItem value='Remoto'>Remoto</SelectItem>
-            </SelectContent>
-          </Select>
+            <div>
+              <Label className='mb-1'>Proposta</Label>
+              <Select
+                value={form.proposta}
+                onValueChange={(val) => handleChange('proposta', val)}
+                className='w-full'
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='Selecione a proposta' />
+                </SelectTrigger>
+                <SelectContent>
+                  {propostaList.map((prop) => (
+                    <SelectItem key={prop} value={prop}>
+                      {prop}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-          {/* MENSAGENS */}
-          {warning && <div className='text-yellow-500 text-sm'>{warning}</div>}
-          {error && <div className='text-red-500 text-sm'>{error}</div>}
-          {erroTecnico && (
-            <div className='text-red-500 text-sm'>{erroTecnico}</div>
-          )}
+          {/* Tipo e Estúdio em linha */}
+          <div className='flex gap-2'>
+            <div className='flex-1'>
+              <Label className='mb-1'>Tipo</Label>
+              <Select
+                value={form.tipo}
+                onValueChange={(val) => handleChange('tipo', val)}
+                className='w-full'
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='Selecione o tipo' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='Gravação'>Gravação</SelectItem>
+                  <SelectItem value='Transmissão'>Transmissão</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* BOTÃO */}
-          <Button onClick={handleSave}>
-            {isEdit ? 'Salvar Alterações' : 'Criar Agendamento'}
-          </Button>
+            <div className='flex-1'>
+              <Label className='mb-1'>Estúdio</Label>
+              <Select
+                value={form.studio}
+                onValueChange={(val) => handleChange('studio', val)}
+                className='w-full'
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='Selecione o estúdio' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='Estudio 170'>Estudio 170</SelectItem>
+                  <SelectItem value='Estudio 120'>Estudio 120</SelectItem>
+                  <SelectItem value='Remoto'>Remoto</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-          {isEdit && (
-            <Button
-              variant='destructive'
-              onClick={handleDelete}
-              className='flex-1'
-            >
-              Cancelar Agendamento
+          {/* Horário, Professor e Técnico em layout compacto */}
+          <div className='grid gap-2 sm:grid-cols-2'>
+            <div>
+              <Label className='mb-1'>Hora Início</Label>
+              <Input
+                type='time'
+                value={form.startTime}
+                onChange={(e) => handleChange('startTime', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className='mb-1'>Hora Fim</Label>
+              <Input
+                type='time'
+                value={form.endTime}
+                disabled
+                placeholder='Fim (automático)'
+              />
+            </div>
+            <div>
+              <Label className='mb-1'>Professor</Label>
+              <Input
+                placeholder='Professor'
+                value={form.professor}
+                onChange={(e) => handleChange('professor', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className='mb-1'>Técnico</Label>
+              <Input placeholder='Técnico' value={form.tecnico} disabled />
+            </div>
+          </div>
+
+          {/* Botões */}
+          <div className='flex gap-2 mt-4'>
+            <Button onClick={handleSave} className='flex-1'>
+              {isEdit ? 'Salvar Alterações' : 'Criar Agendamento'}
             </Button>
-          )}
+            {isEdit && (
+              <Button
+                variant='destructive'
+                onClick={handleDelete}
+                className='flex-1'
+              >
+                Cancelar Agendamento
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

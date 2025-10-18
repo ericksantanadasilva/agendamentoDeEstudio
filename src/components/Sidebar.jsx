@@ -9,10 +9,24 @@ import {
   WrenchScrewdriverIcon,
 } from '@heroicons/react/24/outline';
 import { logout } from '../lib/auth';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 export const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { currentUser } = useUser();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data?.user ?? null);
+    };
+    getUser();
+  }, []);
+
+  if (!user) return null;
 
   const handleLogout = async () => {
     await logout();
@@ -43,8 +57,32 @@ export const Sidebar = ({ isOpen, onClose }) => {
           <XMarkIcon className='h-6 w-6' />
         </button>
         <div>
-          <h1 className='text-2xl font-bold mb-6'>Painel</h1>
-          <nav>
+          <h1 className='text-2xl font-bold mb-6'>Menu</h1>
+
+          <div className='items-center flex gap-2 mb-5 border-b pb-4'>
+            <Avatar>
+              <AvatarImage
+                src={
+                  user.user_metadata?.avatar_url ??
+                  user.user_metadata?.picture ??
+                  undefined
+                }
+                alt={user.user_metadata?.full_name ?? user.email ?? 'Avatar'}
+              />
+              <AvatarFallback>
+                {user.user_metadata?.full_name?.[0] ?? '?'}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className='ml-1'>
+              <p className='font-bold'>
+                {user.user_metadata?.full_name ?? user.email}
+              </p>
+              <p className='text-xs'>{user.email}</p>
+            </div>
+          </div>
+
+          <nav className='ml-4'>
             <ul className='space-y-4'>
               <li
                 className='flex items-center space-x-2 cursor-pointer hover:text-gray-300'

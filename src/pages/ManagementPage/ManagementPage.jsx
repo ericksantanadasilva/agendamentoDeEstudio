@@ -202,7 +202,7 @@ const ManagementPage = () => {
             </AccordionTrigger>
             <AccordionContent>
               <Card>
-                <CardHeader className='border-b'>
+                <CardHeader className='border-b text-base'>
                   <CardTitle>Gerenciar permissões dos usúarios</CardTitle>
                 </CardHeader>
                 <CardContent className='space-y-3'>
@@ -265,7 +265,9 @@ const ManagementPage = () => {
             <AccordionContent>
               <Card>
                 <CardHeader className='flex justify-between items-center py-2 border-b'>
-                  <CardTitle>Editar escala dos técnicos</CardTitle>
+                  <CardTitle className='text-base'>
+                    Editar escala dos técnicos
+                  </CardTitle>
                   <Button size='sm' onClick={() => setShowAddModal(true)}>
                     + Adicionar
                   </Button>
@@ -386,7 +388,9 @@ const ManagementPage = () => {
             <AccordionContent>
               <Card>
                 <CardHeader className='flex justify-between items-center py-2 border-b'>
-                  <CardTitle>Gerenciar aulas fixas semanais</CardTitle>
+                  <CardTitle className='text-base'>
+                    Gerenciar aulas fixas semanais
+                  </CardTitle>
                   <Button
                     size='sm'
                     onClick={() => {
@@ -431,6 +435,7 @@ const ManagementPage = () => {
                         <Button
                           variant='destructive'
                           onClick={() => handleDeleteAula(aula.id)}
+                          size='sm'
                         >
                           Excluir
                         </Button>

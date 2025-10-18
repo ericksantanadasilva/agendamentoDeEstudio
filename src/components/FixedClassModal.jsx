@@ -105,8 +105,9 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
             <Select
               value={form.materia}
               onValueChange={(v) => handleChange('materia', v)}
+              className='w-full'
             >
-              <SelectTrigger>
+              <SelectTrigger className='w-full'>
                 <SelectValue placeholder='Selecione a matéria' />
               </SelectTrigger>
               <SelectContent>
@@ -132,8 +133,9 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
             <Select
               value={form.tipo}
               onValueChange={(v) => handleChange('tipo', v)}
+              className='w-full'
             >
-              <SelectTrigger>
+              <SelectTrigger className='w-full'>
                 <SelectValue placeholder='Selecione o tipo' />
               </SelectTrigger>
               <SelectContent>
@@ -148,8 +150,9 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
             <Select
               value={form.dia_semana}
               onValueChange={(v) => handleChange('dia_semana', v)}
+              className='w-full'
             >
-              <SelectTrigger>
+              <SelectTrigger className='w-full'>
                 <SelectValue placeholder='Selecione o dia' />
               </SelectTrigger>
               <SelectContent>
@@ -211,8 +214,9 @@ export default function FixedClassModal({ open, onClose, onSaved, editData }) {
             <Select
               value={form.estudio}
               onValueChange={(v) => handleChange('estudio', v)}
+              className='w-full'
             >
-              <SelectTrigger>
+              <SelectTrigger className='w-full'>
                 <SelectValue placeholder='Selecione o estúdio' />
               </SelectTrigger>
               <SelectContent>
