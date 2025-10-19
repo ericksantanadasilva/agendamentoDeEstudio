@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 import EventsByDateModal from './EventsByDateModal';
 import EventModal from './EventModal';
 
-export default function Calendar() {
+export default function Calendar({ darkMode }) {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -23,33 +23,16 @@ export default function Calendar() {
 
   const fetchEvents = async () => {
     const { data, error } = await supabase.from('agendamentos').select('*');
+    if (error) return console.error(error);
 
-    if (error) {
-      console.error('Erro ao carregar agendamentos: ', error);
-      return;
-    }
+    const formatted = data.map((evento) => ({
+      id: evento.id,
+      title: `${evento.materia} - ${evento.gravacao}`,
+      start: `${evento.date}T${evento.start}`,
+      end: `${evento.date}T${evento.end}`,
+      extendedProps: { ...evento },
+    }));
 
-    const formatted = data.map((evento) => {
-      const startDateTime = `${evento.date}T${evento.start}`;
-      const endDateTime = `${evento.date}T${evento.end}`;
-
-      return {
-        id: evento.id,
-        title: `${evento.materia} - ${evento.gravacao}`,
-        start: startDateTime,
-        end: endDateTime,
-        extendedProps: {
-          studio: evento.studio,
-          tecnico: evento.tecnico,
-          gravacao: evento.gravacao,
-          materia: evento.materia,
-          professor: evento.professor,
-          tipo: evento.tipo,
-          user_email: evento.user_email,
-          user_id: evento.user_id,
-        },
-      };
-    });
     setEvents(formatted);
   };
 
@@ -60,24 +43,26 @@ export default function Calendar() {
   };
 
   const handleEventClick = (info) => {
-    const clickedDate = info.event.startStr.slice(0, 10); //pega só a data YYYY-MM-DD
-
+    const clickedDate = info.event.startStr.slice(0, 10);
     const eventosNoDia = events.filter((e) => e.start.startsWith(clickedDate));
-
     setEventsOfSelectedDay(eventosNoDia);
     setModalOpen(true);
   };
 
   const getEventColor = (evento) => {
-    const chave = evento.studio;
+    const cores = darkMode
+      ? {
+          'Estudio 120': 'bg-purple-400',
+          'Estudio 170': 'bg-green-400',
+          Remoto: 'bg-red-400',
+        }
+      : {
+          'Estudio 120': 'bg-purple-600',
+          'Estudio 170': 'bg-green-600',
+          Remoto: 'bg-red-600',
+        };
 
-    const cores = {
-      'Estudio 120': 'bg-purple-600',
-      'Estudio 170': 'bg-green-600',
-      Remoto: 'bg-red-600',
-    };
-
-    return cores[chave] || 'bg-gray-400'; //cor padrão caso dê errado
+    return cores[evento.studio] || (darkMode ? 'bg-gray-500' : 'bg-gray-400');
   };
 
   return (
@@ -87,49 +72,29 @@ export default function Calendar() {
         initialView='dayGridMonth'
         locale='pt-br'
         dayMaxEvents={false}
-        views={{
-          dayGridMonth: {
-            moreLinkText: (n) => ` +${n} eventos`, // Aqui é onde mudamos o texto
-          },
-        }}
+        views={{ dayGridMonth: { moreLinkText: (n) => `+${n} eventos` } }}
         moreLinkClick={(arg) => {
-          const clickedDate = arg.date; // objeto Date
-          const clickedDateISO = clickedDate.toISOString().slice(0, 10); // YYYY-MM-DD
-
-          const eventosNoDia = events.filter((e) => {
-            const eventoDate = new Date(e.start).toISOString().slice(0, 10);
-            return eventoDate === clickedDateISO;
-          });
-
-          setEventsOfSelectedDay(eventosNoDia);
+          const clickedDateISO = arg.date.toISOString().slice(0, 10);
+          setEventsOfSelectedDay(
+            events.filter((e) => e.start.startsWith(clickedDateISO))
+          );
           setModalOpen(true);
-
-          return 'none'; // Impede o popover nativo
+          return 'none';
         }}
-        headerToolbar={{
-          start: '',
-          center: 'title',
-          end: 'today prev,next',
-        }}
-        buttonText={{
-          today: 'Hoje',
-          month: 'Mês',
-          week: 'Semana',
-          day: 'Dia',
-        }}
+        headerToolbar={{ start: '', center: 'title', end: 'today prev,next' }}
+        buttonText={{ today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia' }}
         height='auto'
         contentHeight='auto'
         fixedWeekCount={false}
         aspectRatio={1.5}
         dayMaxEventRows={3}
-        nowIndicator={true}
+        nowIndicator
         editable={false}
         selectable={false}
         dayCellClassNames={() => 'rounded-md overflow-hidden'}
         eventClassNames={() =>
-          'bg-transparent text-gray-800 text-sm px-2 py-1 rounded shadow cursor-pointer'
+          'bg-transparent text-gray-800 dark:text-gray-200 text-sm px-2 py-1 rounded shadow dark:shadow-neutral-900 cursor-pointer'
         }
-        dayHeaderClassNames={() => 'text-zinc-100 bg-zinc-800 py-2'}
         events={events}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
@@ -143,32 +108,26 @@ export default function Calendar() {
           );
         }}
       />
+
       <EventsByDateModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         events={eventsOfSelectedDay}
         onEdit={(event, forcedDate) => {
-          if (event) {
-            // edição
-            setSelectedEvent(event);
-            setSelectedDate(event.start);
-          } else {
-            // novo agendamento
-            setSelectedEvent(null);
-            setSelectedDate(`${forcedDate}T08:00`);
-          }
-
+          setSelectedEvent(event || null);
+          setSelectedDate(event?.start || `${forcedDate}T08:00`);
           setModalOpen(false);
           setCreateModalOpen(true);
         }}
       />
+
       <EventModal
         open={createModalOpen}
         onClose={() => {
           setCreateModalOpen(false);
-          setSelectedEvent(null); // limpa ao fechar
+          setSelectedEvent(null);
         }}
-        date={selectedDate ? `${selectedDate}` : null}
+        date={selectedDate}
         event={selectedEvent}
         onSave={() => {
           setCreateModalOpen(false);

@@ -87,22 +87,9 @@ body {
   box-shadow: none !important;
 }
 
-/* Botão ativo (ex: botão "Hoje" quando está ativo) */
-.fc .fc-button.fc-button-active {
-  background-color: #2563eb; /* azul */
-  border-color: #2563eb;
-  color: #ffffff; /* texto branco */
-}
-
-/* Hover no botão ativo */
-.fc .fc-button.fc-button-active:hover {
-  background-color: #1d4ed8; /* azul mais escuro */
-}
-
 /* Ícones dos botões (< >) */
 .fc .fc-icon {
   font-size: 16px;
-  color: inherit;
 }
 
 .fc-toolbar-title {
@@ -134,6 +121,46 @@ body {
   width: 100%;
 }
 
+/* DarkMode Full calendar */
+
+.dark .fc .fc-col-header-cell {
+  background-color: #0a0a0a;
+  color: #d1d5db;
+}
+
+.dark .fc .fc-button {
+  background-color: #0a0a0a;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+.dark .fc .fc-button:hover {
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+.dark .fc .fc-today-button:disabled {
+  background-color: rgb(34, 42, 54);
+}
+
+.dark .fc-toolbar-title {
+  color: #f3f4f6;
+}
+
+.dark .fc-daygrid-day-top {
+  color: #d1d5db;
+}
+
+.dark .fc-theme-standard td,
+.dark .fc-theme-standard th,
+.dark .fc-theme-standard .fc-scrollgrid {
+  border-color: rgb(
+    34,
+    42,
+    54
+  ) !important; /* Tailwind gray-200, altere pra sua cor */
+}
+
 /* Força o layout em coluna no mobile */
 @media (max-width: 640px) {
   .fc-header-toolbar {
@@ -158,6 +185,10 @@ body {
 
 .fc-event:hover {
   background-color: #f3f4f6 !important;
+}
+
+.dark .fc-event:hover {
+  background-color: rgb(34, 42, 54) !important;
 }
 
 .fc-daygrid-more-link {
