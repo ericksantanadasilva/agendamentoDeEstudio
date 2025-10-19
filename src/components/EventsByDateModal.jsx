@@ -30,28 +30,28 @@ export const EventsByDateModal = ({ isOpen, onClose, events = [], onEdit }) => {
   const renderEvent = (event) => (
     <div
       key={event.id}
-      className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:bg-gray-50 transition cursor-pointer text-sm space-y-1'
+      className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:bg-gray-50 transition cursor-pointer text-sm space-y-1 dark:bg-neutral-900 dark:border-neutral-700 dark:hover:bg-neutral-800'
       onClick={() => onEdit(event)}
     >
-      <div className='font-semibold text-gray-800'>
+      <div className='font-semibold text-gray-800 dark:text-gray-200'>
         {formatTime(event.start)} - {formatTime(event.end)}
       </div>
-      <div className='flex items-center gap-2 text-gray-600'>
+      <div className='flex items-center gap-2 text-gray-600 dark:text-gray-400'>
         🎬 <span>{event.extendedProps?.gravacao}</span>
       </div>
-      <div className='flex items-center gap-2 text-gray-600'>
+      <div className='flex items-center gap-2 text-gray-600 dark:text-gray-400'>
         📚 <span>{event.extendedProps?.materia}</span>
       </div>
-      <div className='flex items-center gap-2 text-gray-600'>
+      <div className='flex items-center gap-2 text-gray-600 dark:text-gray-400'>
         👨‍🏫 <span>{event.extendedProps?.professor}</span>
       </div>
-      <div className='flex items-center gap-2 text-gray-600'>
+      <div className='flex items-center gap-2 text-gray-600 dark:text-gray-400'>
         🎥 <span>{event.extendedProps?.tecnico}</span>
       </div>
-      <div className='flex items-center gap-2 text-gray-600'>
+      <div className='flex items-center gap-2 text-gray-600 dark:text-gray-400'>
         🏠 <span>{event.extendedProps?.studio}</span>
       </div>
-      <div className='flex items-center gap-2 text-gray-600'>
+      <div className='flex items-center gap-2 text-gray-600 dark:text-gray-400'>
         ▶ <span>{event.extendedProps?.tipo}</span>
       </div>
     </div>

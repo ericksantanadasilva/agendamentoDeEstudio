@@ -72,7 +72,6 @@ body {
   padding: 6px 12px;
   border-radius: 6px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.2s ease, color 0.2s ease;
   cursor: pointer;
 }
 
@@ -154,11 +153,7 @@ body {
 .dark .fc-theme-standard td,
 .dark .fc-theme-standard th,
 .dark .fc-theme-standard .fc-scrollgrid {
-  border-color: rgb(
-    34,
-    42,
-    54
-  ) !important; /* Tailwind gray-200, altere pra sua cor */
+  border-color: rgb(34, 42, 54) !important;
 }
 
 /* Força o layout em coluna no mobile */

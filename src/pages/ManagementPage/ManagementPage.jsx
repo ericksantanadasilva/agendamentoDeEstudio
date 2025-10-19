@@ -185,7 +185,7 @@ const ManagementPage = () => {
   };
 
   return (
-    <div>
+    <div className='min-h-screen bg-white dark:bg-neutral-950'>
       <Sidebar isOpen={isSidebarOpen} onClose={onCloseSidebar} />
       <div className='flex flex-col flex-1'>
         <Header onToggleSidebar={onToggleSidebar} />
@@ -279,7 +279,10 @@ const ManagementPage = () => {
                     <p>Nenhuma escala cadastrada.</p>
                   ) : (
                     escala.map((item) => (
-                      <div className='flex justify-between items-center py-2 border-b'>
+                      <div
+                        className='flex justify-between items-center py-2 border-b'
+                        key={item.id}
+                      >
                         <div>
                           <p className='font-medium'>{item.tecnico_nome}</p>
                           <p className='text-sm text-gray-500'>

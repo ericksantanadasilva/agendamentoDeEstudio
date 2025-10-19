@@ -66,7 +66,7 @@ export default function Calendar({ darkMode }) {
   };
 
   return (
-    <div className='px-4 sm:px-6 lg:px-8 max-w-screen overflow-x-hidden'>
+    <div className='px-4 sm:px-6 lg:px-8 max-w-screen overflow-hidden'>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView='dayGridMonth'

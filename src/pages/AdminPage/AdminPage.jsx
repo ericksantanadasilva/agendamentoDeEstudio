@@ -121,11 +121,9 @@ export default function AdminPage() {
       <Sidebar isOpen={isSidebarOpen} onClose={onCloseSidebar} />
       <div className='flex flex-col flex-1'>
         <Header onToggleSidebar={onToggleSidebar} />
-        <div className='p-6 space-y-8 bg-gray-50'>
-          <h1 className='text-2xl font-bold'>Painel Administrativo</h1>
-
+        <div className='p-6 space-y-8 bg-gray-50 dark:bg-neutral-950'>
           {/* Seção Admins */}
-          <section className='bg-gray-50 rounded-lg shadow p-4'>
+          <section className='bg-gray-50 rounded-lg shadow p-4 dark:bg-neutral-900 mt-17'>
             <h2 className='text-xl font-semibold mb-4'>
               Gerenciar permissões dos usuários
             </h2>
@@ -138,9 +136,11 @@ export default function AdminPage() {
                   .map((u) => (
                     <div
                       key={u.id}
-                      className='flex items-center justify-between border rounded-lg p-3 bg-white shadow-sm'
+                      className='flex items-center justify-between border rounded-lg p-3 bg-white shadow-sm dark:bg-neutral-800'
                     >
-                      <div className='text-gray-700 font-medium'>{u.email}</div>
+                      <div className='text-gray-700 font-medium dark:text-gray-200'>
+                        {u.email}
+                      </div>
                       <div className='flex items-center space-x-6'>
                         {/* Switch Admin */}
                         <div className='flex items-center space-x-2'>
@@ -155,7 +155,9 @@ export default function AdminPage() {
                                 : ''
                             }
                           />
-                          <span className='text-sm text-gray-600'>Admin</span>
+                          <span className='text-sm text-gray-600 dark:text-gray-200'>
+                            Admin
+                          </span>
                         </div>
 
                         {/* Switch Gerência */}
@@ -171,7 +173,7 @@ export default function AdminPage() {
                                 : ''
                             }
                           />
-                          <span className='text-sm text-gray-600'>
+                          <span className='text-sm text-gray-600 dark:text-gray-200'>
                             Gerência
                           </span>
                         </div>
@@ -183,14 +185,16 @@ export default function AdminPage() {
           </section>
 
           {/* Seção logs */}
-          <section className='bg-gray-50 rounded-lg shadow p-4'>
-            <h2 className='text-xl font-semibold mb-4'>Log de Alterações</h2>
+          <section className='bg-gray-50 rounded-lg shadow p-4 dark:bg-neutral-900'>
+            <h2 className='text-xl font-semibold mb-4 dark:text-gray-200'>
+              Log de Alterações
+            </h2>
             {loadingLogs ? (
               <p>Carregando logs...</p>
             ) : (
               <table className='w-full border-collapse text-sm'>
                 <thead>
-                  <tr className='bg-gray-100'>
+                  <tr className='bg-gray-100 dark:bg-neutral-800'>
                     <th className='p-2 border'>Data</th>
                     <th className='p-2 border'>Ação</th>
                     <th className='p-2 border'>Por</th>

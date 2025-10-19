@@ -79,17 +79,19 @@ export default function UserPage() {
       <Sidebar isOpen={isSidebarOpen} onClose={onCloseSidebar} />
       <div className='flex flex-col flex-1'>
         <Header onToggleSidebar={onToggleSidebar} />
-        <div className='p-6 overflow-auto'>
-          <h1 className='text-2xl font-bold mb-4'>Meus Agendamentos</h1>
+        <div className='p-6 overflow-auto dark:bg-neutral-950'>
+          <h1 className='text-2xl font-bold mb-4 mt-17'>Meus Agendamentos</h1>
 
           {loading ? (
             <p>Carregando...</p>
           ) : events.length === 0 ? (
-            <p className='text-gray-500'>Você não possui agendamentos.</p>
+            <p className='text-gray-500 dark:text-gray-200'>
+              Você não possui agendamentos.
+            </p>
           ) : (
-            <div className='bg-gray-50 rounded-lg shadow-md overflow-hidden text-gray-900'>
+            <div className='bg-gray-50 rounded-lg shadow-md overflow-hidden text-gray-900 dark:bg-neutral-900 dark:text-gray-100'>
               <table className='w-full text-left border-collapse'>
-                <thead className='bg-gray-100'>
+                <thead className='bg-gray-100 dark:bg-neutral-800'>
                   <tr>
                     <th className='p-3'>Data</th>
                     <th className='p-3'>Horário</th>
