@@ -32,13 +32,13 @@ export default function LoginPage() {
 
         <button
           onClick={handleGoogleLogin}
-          className='w-full flex items-center justify-center gap-2 border rounded-md py-2 text-gray-700 hover:bg-gray-100 transition mb-4'
+          className='w-full flex items-center justify-center gap-2 border rounded-md py-2 text-gray-700 hover:bg-gray-100 transition mb-4 border-gray-200'
         >
           <img src='google.svg' alt='logo Google' className='h-5 w-5' />
           <span>Continuar com o Google</span>
         </button>
         <form onSubmit={handleLogin}>
-          <div className='flex items-center border rounded-md px-3 py-2 mb-3'>
+          <div className='flex items-center border rounded-md px-3 py-2 mb-3 text-gray-400  border-gray-200'>
             <UserIcon className='h-5 w-5 text-gray-400' />
             <input
               type='email'
@@ -47,13 +47,13 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               id='email'
               name='email'
-              className='ml-2 outline-none flex-1 bg-transparent'
+              className='ml-2 outline-none flex-1 bg-transparent text-gray-500'
               autoComplete='email'
               required
             />
           </div>
 
-          <div className='flex items-center border rounded-md px-3 py-2 mb-1'>
+          <div className='flex items-center border rounded-md px-3 py-2 mb-1 text-gray-400  border-gray-200'>
             <KeyIcon className='h-5 w-5 text-gray-400' />
             <input
               type={showPassword ? 'text' : 'password'}
@@ -62,7 +62,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               name='password'
               id='password'
-              className='ml-2 outline-none flex-1 bg-transparent'
+              className='ml-2 outline-none flex-1 bg-transparent text-gray-400'
               autoComplete='current-password'
               required
             />

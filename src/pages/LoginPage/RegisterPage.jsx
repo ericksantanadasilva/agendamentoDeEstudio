@@ -35,7 +35,7 @@ export default function RegisterPage() {
         <h2 className='text-xl font-bold text-gray-700 mb-4'>Criar Conta</h2>
 
         <form onSubmit={handleSubmit}>
-          <div className='flex items-center border rounded-md px-3 py-2 mb-3'>
+          <div className='flex items-center border rounded-md px-3 py-2 mb-3 text-gray-400  border-gray-200'>
             <IdentificationIcon className='h-5 w-5 text-gray-400' />
             <input
               type='text'
@@ -47,7 +47,7 @@ export default function RegisterPage() {
               required
             />
           </div>
-          <div className='flex items-center border rounded-md px-3 py-2 mb-3'>
+          <div className='flex items-center border rounded-md px-3 py-2 mb-3 text-gray-400  border-gray-200'>
             <UserIcon className='h-5 w-5 text-gray-400' />
             <input
               type='email'
@@ -60,7 +60,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className='flex items-center border rounded-md px-3 py-2 mb-3'>
+          <div className='flex items-center border rounded-md px-3 py-2 mb-3 text-gray-400 border-gray-200'>
             <KeyIcon className='h-5 w-5 text-gray-400' />
             <input
               type={showPassword ? 'text' : 'password'}
@@ -68,7 +68,7 @@ export default function RegisterPage() {
               name='password'
               value={form.password}
               onChange={handleChange}
-              className='ml-2 outline-none flex-1 bg-transparent'
+              className='ml-2 outline-none flex-1 bg-transparent text-gray-400'
               required
             />
             <button
