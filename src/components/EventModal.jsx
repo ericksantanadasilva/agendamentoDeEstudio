@@ -63,17 +63,26 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
         let start, end;
 
         if (data) {
-          // concatena data + hora
-          start = new Date(`${data}T${event.start || event.startTime}`);
-          end = new Date(`${data}T${event.end || event.endTime}`);
+          const isStartFullDate =
+            typeof event.start === 'string' && event.start.includes('T');
+          const isEndFullDate =
+            typeof event.end === 'string' && event.end.includes('T');
+
+          if (isStartFullDate && isEndFullDate) {
+            start = new Date(event.start);
+            end = new Date(event.end);
+          } else {
+            start = new Date(`${data}T${event.start || event.startTime}`);
+            end = new Date(`${data}T${event.end || event.endTime}`);
+          }
         } else {
-          // se não tem data, tenta criar direto com start/end
           start = new Date(event.start);
           end = new Date(event.end);
         }
 
         if (isNaN(start) || isNaN(end)) {
           // trata erro para evitar quebrar a página
+          console.error('Data inválida para o evento:', event);
           setError('Data ou horário inválido no evento.');
           return;
         }
@@ -253,7 +262,30 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
   ]);
 
   const handleChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const updatedForm = { ...prev, [field]: value };
+
+      // Lista de campos obrigatórios
+      const obrigatorios = [
+        'materia',
+        'proposta',
+        'tipo',
+        'professor',
+        'startTime',
+        'studio',
+      ];
+
+      // Verifica se todos os obrigatórios estão preenchidos
+      const todosPreenchidos = obrigatorios.every(
+        (f) => updatedForm[f]?.trim() !== ''
+      );
+
+      // Se estiver tudo preenchido, limpa o aviso
+      if (todosPreenchidos && warning) setWarning('');
+      if (error) setError('');
+
+      return updatedForm;
+    });
   };
 
   useEffect(() => {
@@ -647,6 +679,21 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
               <Input placeholder='Técnico' value={form.tecnico} disabled />
             </div>
           </div>
+
+          {/* Exibir erros e avisos */}
+          {(error || warning || erroTecnico) && (
+            <div className='mt-3 space-y-1 text-center'>
+              {error && (
+                <p className='text-red-600 text-sm font-medium'>{error}</p>
+              )}
+              {warning && (
+                <p className='text-yellow-600 text-sm font-medium'>{warning}</p>
+              )}
+              {erroTecnico && (
+                <p className='text-red-500 text-sm'>{erroTecnico}</p>
+              )}
+            </div>
+          )}
 
           {/* Botões */}
           <div className='flex gap-2 mt-4'>
