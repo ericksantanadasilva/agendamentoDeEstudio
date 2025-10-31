@@ -8,6 +8,7 @@ import '../styles/fullcalendar-overrides.css';
 import { supabase } from '../lib/supabase';
 import EventsByDateModal from './EventsByDateModal';
 import EventModal from './EventModal';
+import { gerarFeriadosRJ } from '@/utils/feriadosRJ';
 
 export default function Calendar({ darkMode }) {
   const [events, setEvents] = useState([]);
@@ -16,10 +17,12 @@ export default function Calendar({ darkMode }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [eventsOfSelectedDay, setEventsOfSelectedDay] = useState([]);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [feriados, setFeriados] = useState([]);
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+    gerarFeriados();
+  }, [darkMode]);
 
   const fetchEvents = async () => {
     const { data, error } = await supabase.from('agendamentos').select('*');
@@ -36,8 +39,30 @@ export default function Calendar({ darkMode }) {
     setEvents(formatted);
   };
 
+  const gerarFeriados = () => {
+    const ano = new Date().getFullYear();
+    const feriadosGerados = gerarFeriadosRJ(ano).map((f) => ({
+      ...f,
+      start: (f.start || '').split('T')[0],
+      className: 'feriado',
+    }));
+    setFeriados(feriadosGerados);
+  };
+
   const handleDateClick = (info) => {
-    setSelectedDate(info.dateStr);
+    const dataClicada = info.dateStr;
+    const feriado = feriados.find((f) => f.start === dataClicada);
+
+    if (feriado) {
+      alert(
+        `⚠️ Este dia é feriado: ${feriado.title.replace(
+          '🎉 ',
+          ''
+        )} – não há expediente.`
+      );
+      return;
+    }
+    setSelectedDate(dataClicada);
     setSelectedEvent(null);
     setCreateModalOpen(true);
   };
@@ -95,7 +120,7 @@ export default function Calendar({ darkMode }) {
         eventClassNames={() =>
           'bg-transparent text-gray-800 dark:text-gray-200 text-sm px-2 py-1 rounded shadow dark:shadow-neutral-900 cursor-pointer'
         }
-        events={events}
+        events={[...events, ...feriados]}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
         eventContent={(arg) => {

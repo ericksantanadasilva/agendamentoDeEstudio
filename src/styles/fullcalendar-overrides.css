@@ -202,3 +202,52 @@ body {
 .fc-daygrid-more-link:hover {
   background-color: #f3f4f6 !important; /* hover:bg-gray-50 */
 }
+
+.fc-event.feriado[style] {
+  color: inherit !important;
+}
+.dark .fc-event.feriado[style] {
+  color: #fff !important;
+}
+
+/* ==== Feriados (modo claro) ==== */
+.fc-event.feriado {
+  background-color: #f87171 !important; /* red-400 */
+  border: none !important;
+  overflow: hidden;
+}
+
+.fc-event.feriado .fc-event-main {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fc-event.feriado .fc-event-main .w-2 {
+  position: absolute;
+  width: 1rem; /* ajusta o tamanho */
+  height: 1rem;
+  border-radius: 9999px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  background-color: rgb(156, 163, 175); /* gray-400 */
+}
+
+.fc-event.feriado .fc-event-main span:last-child {
+  position: relative;
+  z-index: 1;
+  color: rgb(30, 41, 57); /* text-gray-800 */
+}
+
+/* ==== Feriados (modo escuro) ==== */
+.dark .fc-event.feriado {
+  background-color: #dc2626 !important; /* red-600 */
+  border: none !important;
+  overflow: hidden;
+}
+
+.dark .fc-event.feriado .fc-event-main span:last-child {
+  color: rgb(235, 230, 231);
+}

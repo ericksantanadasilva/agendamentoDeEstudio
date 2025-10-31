@@ -72,7 +72,10 @@ export function gerarFeriadosRJ(ano) {
   ];
 
   return [...feriadosFixos, ...feriadosMoveis].map((f) => ({
-    ...f,
-    naoTrabalha: true,
+    title: `${f.nome}`,
+    start: f.data,
+    allDay: true,
+    extendedProps: { feriado: true, tipo: f.tipo },
+    classNames: ['fc-feriado'],
   }));
 }

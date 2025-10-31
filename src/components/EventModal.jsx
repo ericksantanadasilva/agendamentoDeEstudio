@@ -109,7 +109,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
           endTime: '',
           studio: '',
           tipo: '',
-          selectedDate: date.split('T')[0],
+          selectedDate: date ? date.split('T')[0] : '',
         });
       }
       setError('');
@@ -573,8 +573,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
               <Select
                 value={form.materia}
                 onValueChange={(val) => handleChange('materia', val)}
-                className='w-full'
-              >
+                className='w-full'>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Selecione a matéria' />
                 </SelectTrigger>
@@ -593,8 +592,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
               <Select
                 value={form.proposta}
                 onValueChange={(val) => handleChange('proposta', val)}
-                className='w-full'
-              >
+                className='w-full'>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Selecione a proposta' />
                 </SelectTrigger>
@@ -616,8 +614,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
               <Select
                 value={form.tipo}
                 onValueChange={(val) => handleChange('tipo', val)}
-                className='w-full'
-              >
+                className='w-full'>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Selecione o tipo' />
                 </SelectTrigger>
@@ -633,8 +630,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
               <Select
                 value={form.studio}
                 onValueChange={(val) => handleChange('studio', val)}
-                className='w-full'
-              >
+                className='w-full'>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Selecione o estúdio' />
                 </SelectTrigger>
@@ -704,8 +700,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
               <Button
                 variant='destructive'
                 onClick={handleDelete}
-                className='flex-1'
-              >
+                className='flex-1'>
                 Cancelar Agendamento
               </Button>
             )}
