@@ -232,7 +232,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 0;
-  background-color: rgb(156, 163, 175); /* gray-400 */
+  background-color: transparent; /* gray-400 */
 }
 
 .fc-event.feriado .fc-event-main span:last-child {
