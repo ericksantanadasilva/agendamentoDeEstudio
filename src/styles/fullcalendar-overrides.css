@@ -212,9 +212,10 @@ body {
 
 /* ==== Feriados (modo claro) ==== */
 .fc-event.feriado {
-  background-color: #f87171 !important; /* red-400 */
+  background-color: rgb(130, 139, 194) !important; /* red-400 */
   border: none !important;
   overflow: hidden;
+  border-radius: 8px;
 }
 
 .fc-event.feriado .fc-event-main {
@@ -243,9 +244,10 @@ body {
 
 /* ==== Feriados (modo escuro) ==== */
 .dark .fc-event.feriado {
-  background-color: #dc2626 !important; /* red-600 */
+  background-color: rgb(130, 139, 194) !important; /* red-600 */
   border: none !important;
   overflow: hidden;
+  border-radius: 8px;
 }
 
 .dark .fc-event.feriado .fc-event-main span:last-child {

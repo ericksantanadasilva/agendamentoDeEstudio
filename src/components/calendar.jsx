@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import EventsByDateModal from './EventsByDateModal';
 import EventModal from './EventModal';
 import { gerarFeriadosRJ } from '@/utils/feriadosRJ';
+import { set } from 'date-fns';
 
 export default function Calendar({ darkMode }) {
   const [events, setEvents] = useState([]);
@@ -21,7 +22,6 @@ export default function Calendar({ darkMode }) {
 
   useEffect(() => {
     fetchEvents();
-    gerarFeriados();
   }, [darkMode]);
 
   const fetchEvents = async () => {
@@ -39,14 +39,29 @@ export default function Calendar({ darkMode }) {
     setEvents(formatted);
   };
 
-  const gerarFeriados = () => {
-    const ano = new Date().getFullYear();
-    const feriadosGerados = gerarFeriadosRJ(ano).map((f) => ({
+  const gerarFeriadosDoAno = (ano) => {
+    return gerarFeriadosRJ(ano).map((f) => ({
       ...f,
       start: (f.start || '').split('T')[0],
       className: 'feriado',
+      isFeriado: true,
     }));
-    setFeriados(feriadosGerados);
+  };
+
+  const gerarFeriadosParaIntervalo = (startDate, endDate) => {
+    const startYear = new Date(startDate).getFullYear();
+    const endYear = new Date(endDate).getFullYear();
+    let anos = [];
+    for (let y = startYear; y <= endYear; y++) anos.push(y);
+
+    const todos = anos.flatMap((y) => gerarFeriadosDoAno(y));
+
+    const map = new Map();
+    todos.forEach((f) => {
+      const key = `${f.start}::${f.title}`;
+      if (!map.has(key)) map.set(key, f);
+    });
+    setFeriados(Array.from(map.values()));
   };
 
   const handleDateClick = (info) => {
@@ -105,6 +120,9 @@ export default function Calendar({ darkMode }) {
           );
           setModalOpen(true);
           return 'none';
+        }}
+        datesSet={(arg) => {
+          gerarFeriadosParaIntervalo(arg.start, arg.end);
         }}
         headerToolbar={{ start: '', center: 'title', end: 'today prev,next' }}
         buttonText={{ today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia' }}
