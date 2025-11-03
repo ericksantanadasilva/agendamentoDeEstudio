@@ -18,9 +18,8 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from './ui/alert-dialog';
-import { set } from 'date-fns';
 
-export default function Calendar({ darkMode }) {
+export default function Calendar({ darkMode, onDayClick }) {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -82,9 +81,14 @@ export default function Calendar({ darkMode }) {
       setFeriadoAtivo(feriado);
       return;
     }
+
+    const eventosNoDia = events.filter((e) => e.start.startsWith(dataClicada));
     setSelectedDate(dataClicada);
-    setSelectedEvent(null);
-    setCreateModalOpen(true);
+    setEventsOfSelectedDay(eventosNoDia);
+    // setSelectedEvent(null);
+    // setCreateModalOpen(true);
+
+    if (onDayClick) onDayClick(dataClicada, eventosNoDia);
   };
 
   const handleEventClick = (info) => {
@@ -98,6 +102,8 @@ export default function Calendar({ darkMode }) {
     const eventosNoDia = events.filter((e) => e.start.startsWith(clickedDate));
     setEventsOfSelectedDay(eventosNoDia);
     setModalOpen(true);
+
+    if (onDayClick) onDayClick(clickedDate, eventosNoDia);
   };
 
   const getEventColor = (evento) => {
@@ -144,7 +150,7 @@ export default function Calendar({ darkMode }) {
         dayMaxEventRows={3}
         nowIndicator
         editable={false}
-        selectable={false}
+        selectable={true}
         dayCellClassNames={() => 'rounded-md overflow-hidden'}
         eventClassNames={() =>
           'bg-transparent text-gray-800 dark:text-gray-200 text-sm px-2 py-1 rounded shadow dark:shadow-neutral-900 cursor-pointer'

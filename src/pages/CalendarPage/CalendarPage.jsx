@@ -2,9 +2,12 @@ import Sidebar from '../../components/Sidebar';
 import Calendar from '../../components/calendar';
 import Header from '../../components/Header';
 import { useState, useEffect } from 'react';
+import DayView from '../../components/DayView';
 
 export default function CalendarPage(darkMode, setDarkMode) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [dayEvents, setDayEvents] = useState([]);
 
   const onToggleSidebar = () => setIsSidebarOpen(true);
   const onCloseSidebar = () => setIsSidebarOpen(false);
@@ -18,8 +21,26 @@ export default function CalendarPage(darkMode, setDarkMode) {
       />
       <div className='flex flex-1 overflow-hidden'>
         <Sidebar isOpen={isSidebarOpen} onClose={onCloseSidebar} />
-        <div className='flex-1 p-2 overflow-auto pt-18'>
-          <Calendar darkMode={darkMode} />
+        <div className='flex-1 flex flex-col p-2 overflow-auto pt-18'>
+          <div className='flex-1 overflow-auto'>
+            <Calendar
+              darkMode={darkMode}
+              onDayClick={(date, events) => {
+                setSelectedDate(date);
+                setDayEvents(events);
+              }}
+            />
+          </div>
+          {/* DayView abaixo do calendário */}
+          {selectedDate && (
+            <div className='mt-4 border-t pt-4'>
+              <h2 className='text-lg font-semibold mb-2'>
+                Agenda do dia{' '}
+                {new Date(selectedDate).toLocaleDateString('pt-BR')}
+              </h2>
+              <DayView events={dayEvents} />
+            </div>
+          )}
         </div>
       </div>
     </div>
