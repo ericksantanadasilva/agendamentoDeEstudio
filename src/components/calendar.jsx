@@ -9,6 +9,15 @@ import { supabase } from '../lib/supabase';
 import EventsByDateModal from './EventsByDateModal';
 import EventModal from './EventModal';
 import { gerarFeriadosRJ } from '@/utils/feriadosRJ';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from './ui/alert-dialog';
 import { set } from 'date-fns';
 
 export default function Calendar({ darkMode }) {
@@ -19,6 +28,7 @@ export default function Calendar({ darkMode }) {
   const [eventsOfSelectedDay, setEventsOfSelectedDay] = useState([]);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [feriados, setFeriados] = useState([]);
+  const [feriadoAtivo, setFeriadoAtivo] = useState(null);
 
   useEffect(() => {
     fetchEvents();
@@ -69,12 +79,7 @@ export default function Calendar({ darkMode }) {
     const feriado = feriados.find((f) => f.start === dataClicada);
 
     if (feriado) {
-      alert(
-        `⚠️ Este dia é feriado: ${feriado.title.replace(
-          '🎉 ',
-          ''
-        )} – não há expediente.`
-      );
+      setFeriadoAtivo(feriado);
       return;
     }
     setSelectedDate(dataClicada);
@@ -84,6 +89,12 @@ export default function Calendar({ darkMode }) {
 
   const handleEventClick = (info) => {
     const clickedDate = info.event.startStr.slice(0, 10);
+    const feriado = feriados.find((f) => f.start === clickedDate);
+
+    if (feriado) {
+      setFeriadoAtivo(feriado);
+      return;
+    }
     const eventosNoDia = events.filter((e) => e.start.startsWith(clickedDate));
     setEventsOfSelectedDay(eventosNoDia);
     setModalOpen(true);
@@ -178,6 +189,24 @@ export default function Calendar({ darkMode }) {
           fetchEvents();
         }}
       />
+
+      <AlertDialog
+        open={!!feriadoAtivo}
+        onOpenChange={() => setFeriadoAtivo(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Feriado: {feriadoAtivo?.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Este dia é um feriado. Agendamentos não podem ser feitos em
+              feriados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Fechar</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
