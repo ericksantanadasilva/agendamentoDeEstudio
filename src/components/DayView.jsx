@@ -1,86 +1,179 @@
 import { useEffect, useState } from 'react';
 
-const studios = ['Estudio 170', 'Estudio 120', 'Estudio Remoto'];
+const studios = ['Estudio 170', 'Estudio 120', 'Remoto']; // nomes EXATOS esperados
 
-const DayView = ({ events }) => {
-  const [currentTime, setCurrentTime] = useState(new Date());
+const DayView = ({ events = [] }) => {
+  const [now, setNow] = useState(new Date());
 
   useEffect(() => {
-    const interval = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(interval);
+    const t = setInterval(() => setNow(new Date()), 60 * 1000);
+    return () => clearInterval(t);
   }, []);
 
   const startHour = 6;
   const endHour = 23;
+  const totalMinutes = (endHour - startHour) * 60;
 
-  const getMinutesFromStart = (date) => {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    return (hours - startHour) * 60 + minutes;
+  const minutesFromStart = (date) => {
+    // aceita Date ou string ISO
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return (d.getHours() - startHour) * 60 + d.getMinutes();
   };
 
-  const totalMinutes = (endHour - startHour) * 60;
-  const currentMinutes = getMinutesFromStart(currentTime);
-  const currentPosition = (currentMinutes / totalMinutes) * 100;
+  const currentMins = minutesFromStart(now);
+  const currentPosPct = (currentMins / totalMinutes) * 100;
 
   return (
-    <div className='relative border rounded-lg overflow-hidden'>
-      {/* cabeçalho dos estúdios */}
-      <div className='grid grid-cols-3 text-center font-semibold border-b bg-gray-100 dark:bg-neutral-800'>
-        {studios.map((studio) => (
-          <div key={studio} className='p-2'>
-            {studio}
-          </div>
-        ))}
+    <div className='w-full border rounded-lg overflow-hidden bg-white dark:bg-neutral-900'>
+      {/* HEADER: coluna vazia (para horas) + área com 3 colunas */}
+      <div className='flex items-stretch'>
+        {/* spacer (mesma largura da coluna de horas no body) */}
+        <div className='w-16' />
+        {/* right area header: grid de 3 colunas */}
+        <div className='flex-1 grid grid-cols-3'>
+          {studios.map((s, i) => (
+            <div
+              key={s}
+              className={`text-center font-semibold p-2 border-b border-r ${
+                i === studios.length - 1 ? 'border-r-0' : ''
+              } bg-gray-100 dark:bg-neutral-800 text-sm`}
+            >
+              {s}
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* corpo com horários */}
-      <div className='relative h-[1500px] grid grid-cols-3 border-t'>
-        {/* linhas de hora */}
-        {[...Array(endHour - startHour + 1)].map((_, i) => {
-          const hour = startHour + i;
-          return (
+      {/* BODY */}
+      <div
+        className='relative flex pb-10'
+        style={{ height: '820px' /* ajuste a altura que quiser */ }}
+      >
+        {/* col horas */}
+        <div className='w-16 relative'>
+          {[...Array(endHour - startHour + 1)].map((_, i) => {
+            const hour = startHour + i;
+            const top = ((i * 60) / totalMinutes) * 100;
+            return (
+              <div
+                key={hour}
+                className='absolute left-0 right-0 text-xs text-gray-500 dark:text-gray-400'
+                style={{ top: `${top}%`, transform: 'translateY(-50%)' }}
+              >
+                <div className='pr-2 text-right'>{`${hour
+                  .toString()
+                  .padStart(2, '0')}:00`}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* right area: grid de 3 colunas (cada coluna position:relative para eventos absolutos) */}
+        <div className='flex-1 relative'>
+          {/* linhas horizontais que cruzam todas as colunas */}
+          {[...Array(endHour - startHour + 1)].map((_, i) => {
+            const top = ((i * 60) / totalMinutes) * 100;
+            return (
+              <div
+                key={'line-' + i}
+                className='absolute left-0 right-0 border-t border-gray-200 dark:border-neutral-700'
+                style={{ top: `${top}%` }}
+              />
+            );
+          })}
+
+          {/* linha vermelha do horário atual (aparece apenas se estiver dentro do range) */}
+          {currentMins >= 0 && currentMins <= totalMinutes && (
             <div
-              key={hour}
-              className='absolute left-0 w-full border-t borer-gray-200 text-xs text-gray-400'
-              style={{ top: `${((i * 60) / totalMinutes) * 100}%` }}
-            >
-              <div className='absolute -left-10'>{hour}</div>
-            </div>
-          );
-        })}
-
-        {/* linha vermelha do horario atual */}
-        <div
-          className='absolute left-0 w-full border-t-2 border-red-500'
-          style={{ top: `${currentPosition}%` }}
-        />
-
-        {/* eventos */}
-        {events.map((event, i) => {
-          const start = new Date(event.start);
-          const end = new Date(event.end);
-          const startMins = getMinutesFromStart(start);
-          const endMins = getMinutesFromStart(end);
-          const top = (startMins / totalMinutes) * 100;
-          const height = ((endMins - startMins) / totalMinutes) * 100;
-          const colIndex = studios.indexOf(event.studio);
-
-          return (
-            <div
-              key={i}
-              className='absolute mx-1 p-1 rounded text-white bg-blue-600'
+              className='absolute left-0 right-0 pointer-events-none'
               style={{
-                top: `${top}%`,
-                height: `${height}%`,
-                left: `${(colIndex / 3) * 100}%`,
-                width: `${100 / 3}%`,
+                top: `${currentPosPct}%`,
+                transform: 'translateY(-1px)',
               }}
             >
-              {event.title}
+              <div className='border-t-2 border-red-500' />
             </div>
-          );
-        })}
+          )}
+
+          {/* grid de colunas por estúdio — cada célula é relative */}
+          <div className='absolute inset-0 grid grid-cols-3'>
+            {studios.map((studio, colIndex) => (
+              <div
+                key={studio}
+                className={`relative ${
+                  colIndex < studios.length - 1
+                    ? 'border-r border-gray-200 dark:border-neutral-700'
+                    : ''
+                }`}
+              >
+                {/* eventos desta coluna */}
+                {events
+                  .filter((e) => e.studio === studio)
+                  .map((ev, idx) => {
+                    // ev.start / ev.end devem ser strings ISO ou Date
+                    const start =
+                      typeof ev.start === 'string'
+                        ? new Date(ev.start)
+                        : ev.start;
+                    const end =
+                      typeof ev.end === 'string' ? new Date(ev.end) : ev.end;
+
+                    const sMins = minutesFromStart(start);
+                    const eMins = minutesFromStart(end);
+
+                    // descartar fora do range
+                    if (eMins <= 0 || sMins >= totalMinutes) return null;
+
+                    const topPct = (Math.max(sMins, 0) / totalMinutes) * 100;
+                    const bottomPct =
+                      (Math.min(eMins, totalMinutes) / totalMinutes) * 100;
+                    const heightPct = bottomPct - topPct;
+
+                    return (
+                      <div
+                        key={idx}
+                        className='absolute left-2 right-2 rounded-md bg-blue-600 text-white p-1 shadow text-sm overflow-hidden'
+                        style={{
+                          top: `${topPct}%`,
+                          height: `${heightPct}%`,
+                        }}
+                        title={`${ev.title} — ${start
+                          .getHours()
+                          .toString()
+                          .padStart(2, '0')}:${start
+                          .getMinutes()
+                          .toString()
+                          .padStart(2, '0')} - ${end
+                          .getHours()
+                          .toString()
+                          .padStart(2, '0')}:${end
+                          .getMinutes()
+                          .toString()
+                          .padStart(2, '0')}`}
+                      >
+                        <div className='truncate font-medium'>{ev.title}</div>
+                        <div className='text-[10px] opacity-80'>
+                          {`${start
+                            .getHours()
+                            .toString()
+                            .padStart(2, '0')}:${start
+                            .getMinutes()
+                            .toString()
+                            .padStart(2, '0')} - ${end
+                            .getHours()
+                            .toString()
+                            .padStart(2, '0')}:${end
+                            .getMinutes()
+                            .toString()
+                            .padStart(2, '0')}`}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

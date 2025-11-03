@@ -42,6 +42,7 @@ export default function Calendar({ darkMode, onDayClick }) {
       title: `${evento.materia} - ${evento.gravacao}`,
       start: `${evento.date}T${evento.start}`,
       end: `${evento.date}T${evento.end}`,
+      studio: evento.studio,
       extendedProps: { ...evento },
     }));
 
