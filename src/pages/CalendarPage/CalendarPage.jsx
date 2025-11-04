@@ -34,7 +34,7 @@ export default function CalendarPage(darkMode, setDarkMode) {
           {/* DayView abaixo do calendário */}
           {selectedDate && (
             <div className='mt-4 border-t pt-4'>
-              <h2 className='text-lg font-semibold mb-2'>
+              <h2 className='text-lg font-semibold mb-2 ml-4'>
                 Agenda do dia{' '}
                 {new Date(`${selectedDate}T12:00:00`).toLocaleDateString(
                   'pt-BR'

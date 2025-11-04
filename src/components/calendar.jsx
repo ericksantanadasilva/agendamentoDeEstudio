@@ -3,7 +3,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import '@fullcalendar/core/locales/pt-br';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '../styles/fullcalendar-overrides.css';
 import { supabase } from '../lib/supabase';
 import EventsByDateModal from './EventsByDateModal';
@@ -18,6 +18,7 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from './ui/alert-dialog';
+import { set } from 'date-fns';
 
 export default function Calendar({ darkMode, onDayClick }) {
   const [events, setEvents] = useState([]);
@@ -74,22 +75,28 @@ export default function Calendar({ darkMode, onDayClick }) {
     setFeriados(Array.from(map.values()));
   };
 
+  let lastClickTime = useRef(0);
+
   const handleDateClick = (info) => {
     const dataClicada = info.dateStr;
     const feriado = feriados.find((f) => f.start === dataClicada);
+
+    const eventosNoDia = events.filter((e) => e.start.startsWith(dataClicada));
+    setSelectedDate(dataClicada);
+    setEventsOfSelectedDay(eventosNoDia);
+    if (onDayClick) onDayClick(dataClicada, eventosNoDia);
 
     if (feriado) {
       setFeriadoAtivo(feriado);
       return;
     }
 
-    const eventosNoDia = events.filter((e) => e.start.startsWith(dataClicada));
-    setSelectedDate(dataClicada);
-    setEventsOfSelectedDay(eventosNoDia);
-    // setSelectedEvent(null);
-    // setCreateModalOpen(true);
-
-    if (onDayClick) onDayClick(dataClicada, eventosNoDia);
+    const now = Date.now();
+    if (now - lastClickTime.current < 300) {
+      setSelectedEvent(null);
+      setCreateModalOpen(true);
+    }
+    lastClickTime.current = now;
   };
 
   const handleEventClick = (info) => {
