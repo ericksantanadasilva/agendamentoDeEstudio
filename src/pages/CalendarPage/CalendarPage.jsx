@@ -36,7 +36,9 @@ export default function CalendarPage(darkMode, setDarkMode) {
             <div className='mt-4 border-t pt-4'>
               <h2 className='text-lg font-semibold mb-2'>
                 Agenda do dia{' '}
-                {new Date(selectedDate).toLocaleDateString('pt-BR')}
+                {new Date(`${selectedDate}T12:00:00`).toLocaleDateString(
+                  'pt-BR'
+                )}
               </h2>
               <DayView events={dayEvents} />
             </div>
