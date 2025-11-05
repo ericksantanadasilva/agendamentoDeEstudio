@@ -86,12 +86,14 @@ export default function Calendar({ darkMode, onDayClick }) {
     setEventsOfSelectedDay(eventosNoDia);
     if (onDayClick) onDayClick(dataClicada, eventosNoDia);
 
+    const now = Date.now();
     if (feriado) {
-      setFeriadoAtivo(feriado);
-      return;
+      if (now - lastClickTime.current < 300) {
+        setFeriadoAtivo(feriado);
+        return;
+      }
     }
 
-    const now = Date.now();
     if (now - lastClickTime.current < 300) {
       setSelectedEvent(null);
       setCreateModalOpen(true);
@@ -109,7 +111,7 @@ export default function Calendar({ darkMode, onDayClick }) {
     }
     const eventosNoDia = events.filter((e) => e.start.startsWith(clickedDate));
     setEventsOfSelectedDay(eventosNoDia);
-    setModalOpen(true);
+    // setModalOpen(true);
 
     if (onDayClick) onDayClick(clickedDate, eventosNoDia);
   };

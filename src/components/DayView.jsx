@@ -1,9 +1,18 @@
 import { useEffect, useState } from 'react';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
+import EventModal from './EventModal';
 
 const studios = ['Estudio 170', 'Estudio 120', 'Remoto']; // nomes EXATOS esperados
 
 const DayView = ({ events = [] }) => {
   const [now, setNow] = useState(new Date());
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleEdit = (event) => {
+    setSelectedEvent(event);
+    setIsEditModalOpen(true);
+  };
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 60 * 1000);
@@ -130,44 +139,63 @@ const DayView = ({ events = [] }) => {
                     const heightPct = bottomPct - topPct;
 
                     return (
-                      <div
-                        key={idx}
-                        className='absolute left-2 right-2 rounded-md bg-blue-600 text-white p-1 shadow text-sm overflow-hidden'
-                        style={{
-                          top: `${topPct}%`,
-                          height: `${heightPct}%`,
-                        }}
-                        title={`${ev.title} — ${start
-                          .getHours()
-                          .toString()
-                          .padStart(2, '0')}:${start
-                          .getMinutes()
-                          .toString()
-                          .padStart(2, '0')} - ${end
-                          .getHours()
-                          .toString()
-                          .padStart(2, '0')}:${end
-                          .getMinutes()
-                          .toString()
-                          .padStart(2, '0')}`}
-                      >
-                        <div className='truncate font-medium'>{ev.title}</div>
-                        <div className='text-[10px] opacity-80'>
-                          {`${start
-                            .getHours()
-                            .toString()
-                            .padStart(2, '0')}:${start
-                            .getMinutes()
-                            .toString()
-                            .padStart(2, '0')} - ${end
-                            .getHours()
-                            .toString()
-                            .padStart(2, '0')}:${end
-                            .getMinutes()
-                            .toString()
-                            .padStart(2, '0')}`}
-                        </div>
-                      </div>
+                      <HoverCard key={idx}>
+                        <HoverCardTrigger asChild>
+                          <div
+                            onDoubleClick={() => handleEdit(ev)}
+                            className='absolute left-2 right-2 rounded-md bg-blue-600 text-white p-1 shadow text-sm overflow-hidden'
+                            style={{
+                              top: `${topPct}%`,
+                              height: `${heightPct}%`,
+                            }}
+                          >
+                            <div className='truncate font-medium'>
+                              {ev.title}
+                            </div>
+                            <div className='text-[10px] opacity-80'>
+                              {`${start
+                                .getHours()
+                                .toString()
+                                .padStart(2, '0')}:${start
+                                .getMinutes()
+                                .toString()
+                                .padStart(2, '0')} - ${end
+                                .getHours()
+                                .toString()
+                                .padStart(2, '0')}:${end
+                                .getMinutes()
+                                .toString()
+                                .padStart(2, '0')}`}
+                            </div>
+                          </div>
+                        </HoverCardTrigger>
+                        <HoverCardContent className='w-56 p-3 space-y-1 text-sm'>
+                          <p>
+                            <strong>{ev.title}</strong>
+                          </p>
+                          <p>📚 {ev.extendedProps.materia}</p>
+                          <p>🎬 {ev.extendedProps.gravacao}</p>
+                          <p>👩‍🏫 {ev.extendedProps.professor}</p>
+                          <p>🎧 {ev.extendedProps.tecnico}</p>
+                          <p>🏠 {ev.studio}</p>
+                          <p>
+                            🕒{' '}
+                            {`${start
+                              .getHours()
+                              .toString()
+                              .padStart(2, '0')}:${start
+                              .getMinutes()
+                              .toString()
+                              .padStart(2, '0')} - ${end
+                              .getHours()
+                              .toString()
+                              .padStart(2, '0')}:${end
+                              .getMinutes()
+                              .toString()
+                              .padStart(2, '0')}`}
+                          </p>
+                        </HoverCardContent>
+                      </HoverCard>
                     );
                   })}
               </div>
@@ -175,6 +203,15 @@ const DayView = ({ events = [] }) => {
           </div>
         </div>
       </div>
+      {isEditModalOpen && selectedEvent && (
+        <EventModal
+          open={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          event={selectedEvent}
+          date={selectedEvent.start?.split('T')[0]}
+          mode='edit'
+        />
+      )}
     </div>
   );
 };
