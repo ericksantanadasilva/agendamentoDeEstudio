@@ -8,6 +8,7 @@ const DayView = ({ events = [] }) => {
   const [now, setNow] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [openCard, setOpenCard] = useState(null);
 
   const handleEdit = (event) => {
     setSelectedEvent(event);
@@ -138,9 +139,44 @@ const DayView = ({ events = [] }) => {
                       (Math.min(eMins, totalMinutes) / totalMinutes) * 100;
                     const heightPct = bottomPct - topPct;
 
+                    const uid =
+                      ev.id != null
+                        ? String(ev.id)
+                        : `${studio}-${start.getTime()}-${idx}`;
+
                     return (
-                      <HoverCard key={idx}>
-                        <HoverCardTrigger asChild>
+                      <HoverCard
+                        key={idx}
+                        open={openCard === uid}
+                        onOpenChange={(isOpen) => {
+                          // Fecha automaticamente se for desktop (hover), ou controla manualmente no mobile
+                          if (!('ontouchstart' in window)) {
+                            setOpenCard(isOpen ? uid : null);
+                          }
+                        }}
+                      >
+                        <HoverCardTrigger
+                          asChild
+                          onClick={(e) => {
+                            // Bloqueia o Radix de tentar abrir via hover no mobile
+                            e.stopPropagation();
+                            if ('ontouchstart' in window) {
+                              // Garante que só um hover fica aberto por vez
+                              setOpenCard(openCard === uid ? null : uid);
+                            }
+                          }}
+                          onMouseEnter={() => {
+                            // Fecha outros se estiver em desktop e o mouse passou sobre outro
+                            if (!('ontouchstart' in window)) {
+                              setOpenCard(uid);
+                            }
+                          }}
+                          onMouseLeave={() => {
+                            if (!('ontouchstart' in window)) {
+                              setOpenCard(null);
+                            }
+                          }}
+                        >
                           <div
                             onDoubleClick={() => handleEdit(ev)}
                             className='absolute left-2 right-2 rounded-md bg-blue-600 text-white p-1 shadow text-sm overflow-hidden'
