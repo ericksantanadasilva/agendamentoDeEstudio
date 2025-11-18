@@ -20,7 +20,7 @@ const DayView = ({ events = [] }) => {
     return () => clearInterval(t);
   }, []);
 
-  const startHour = 6;
+  const startHour = 0;
   const endHour = 23;
   const totalMinutes = (endHour - startHour) * 60;
 
