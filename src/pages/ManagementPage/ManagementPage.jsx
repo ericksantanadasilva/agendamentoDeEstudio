@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/lib/supabase';
 import FixedClassModal from '@/components/FixedClassModal';
 import { formatTime } from '@/utils/formatTime';
+import BloqueiosSection from '@/components/BloqueiosSection';
 
 const ManagementPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -454,6 +455,16 @@ const ManagementPage = () => {
                   />
                 </CardContent>
               </Card>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value='bloqueios'>
+            <AccordionTrigger className='text-lg font-semibold'>
+              Bloqueio de Estúdios
+            </AccordionTrigger>
+
+            <AccordionContent>
+              <BloqueiosSection />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
