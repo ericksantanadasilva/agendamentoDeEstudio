@@ -4,7 +4,7 @@ import EventModal from './EventModal';
 
 const studios = ['Estudio 170', 'Estudio 120', 'Remoto']; // nomes EXATOS esperados
 
-const DayView = ({ events = [] }) => {
+const DayView = ({ events = [], onUpdated }) => {
   const [now, setNow] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -246,6 +246,9 @@ const DayView = ({ events = [] }) => {
           event={selectedEvent}
           date={selectedEvent.start?.split('T')[0]}
           mode='edit'
+          onSave={() => {
+            onUpdated && onUpdated();
+          }}
         />
       )}
     </div>

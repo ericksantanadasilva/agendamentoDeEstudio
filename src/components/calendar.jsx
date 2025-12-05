@@ -3,7 +3,13 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import '@fullcalendar/core/locales/pt-br';
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import '../styles/fullcalendar-overrides.css';
 import { supabase } from '../lib/supabase';
 import EventsByDateModal from './EventsByDateModal';
@@ -18,9 +24,8 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from './ui/alert-dialog';
-import { set } from 'date-fns';
 
-export default function Calendar({ darkMode, onDayClick }) {
+function Calendar({ darkMode, onDayClick, onUpdated }, ref) {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -29,10 +34,7 @@ export default function Calendar({ darkMode, onDayClick }) {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [feriados, setFeriados] = useState([]);
   const [feriadoAtivo, setFeriadoAtivo] = useState(null);
-
-  useEffect(() => {
-    fetchEvents();
-  }, [darkMode]);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const fetchEvents = async () => {
     const { data, error } = await supabase.from('agendamentos').select('*');
@@ -48,7 +50,25 @@ export default function Calendar({ darkMode, onDayClick }) {
     }));
 
     setEvents(formatted);
+
+    if (selectedDate && onDayClick) {
+      const eventsOfDay = formatted.filter((ev) => {
+        const startDate = ev.start.split('T')[0];
+        return startDate === selectedDate;
+      });
+      onDayClick(selectedDate, eventsOfDay);
+    }
   };
+
+  useImperativeHandle(ref, () => ({
+    reloadEvents() {
+      return fetchEvents();
+    },
+  }));
+
+  useEffect(() => {
+    fetchEvents();
+  }, [darkMode]);
 
   const gerarFeriadosDoAno = (ano) => {
     return gerarFeriadosRJ(ano).map((f) => ({
@@ -203,6 +223,23 @@ export default function Calendar({ darkMode, onDayClick }) {
           setCreateModalOpen(false);
           setSelectedEvent(null);
           fetchEvents();
+          onUpdated && onUpdated();
+        }}
+      />
+
+      <EventModal
+        open={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedEvent(null);
+        }}
+        date={selectedDate}
+        event={selectedEvent}
+        onSave={() => {
+          setEditModalOpen(false);
+          setSelectedEvent(null);
+          fetchEvents(); // ← AGORA O DELETE ATUALIZA DE FATO
+          onUpdated && onUpdated();
         }}
       />
 
@@ -226,3 +263,5 @@ export default function Calendar({ darkMode, onDayClick }) {
     </div>
   );
 }
+
+export default forwardRef(Calendar);

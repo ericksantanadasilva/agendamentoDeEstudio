@@ -34,7 +34,7 @@ export function gerarFeriadosRJ(ano) {
   const feriadosFixos = [
     {
       data: `${ano}-01-01`,
-      nome: 'Confraternização Universal',
+      nome: 'Ano Novo',
       tipo: 'nacional',
     },
     { data: `${ano}-04-21`, nome: 'Tiradentes', tipo: 'nacional' },

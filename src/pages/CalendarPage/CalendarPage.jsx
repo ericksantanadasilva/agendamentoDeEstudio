@@ -1,7 +1,7 @@
 import Sidebar from '../../components/Sidebar';
 import Calendar from '../../components/calendar';
 import Header from '../../components/Header';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DayView from '../../components/DayView';
 
 export default function CalendarPage(darkMode, setDarkMode) {
@@ -11,6 +11,11 @@ export default function CalendarPage(darkMode, setDarkMode) {
 
   const onToggleSidebar = () => setIsSidebarOpen(true);
   const onCloseSidebar = () => setIsSidebarOpen(false);
+  const calendarRef = useRef(null);
+
+  const handleEventsUpdated = () => {
+    calendarRef.current?.reloadEvents();
+  };
 
   return (
     <div className='flex flex-col min-h-screen bg-gray-50 text-gray-900 dark:bg-neutral-950 dark:text-gray-100'>
@@ -29,6 +34,7 @@ export default function CalendarPage(darkMode, setDarkMode) {
                 setSelectedDate(date);
                 setDayEvents(events);
               }}
+              ref={calendarRef}
             />
           </div>
           {/* DayView abaixo do calendário */}
@@ -40,7 +46,7 @@ export default function CalendarPage(darkMode, setDarkMode) {
                   'pt-BR'
                 )}
               </h2>
-              <DayView events={dayEvents} />
+              <DayView events={dayEvents} onUpdated={handleEventsUpdated} />
             </div>
           )}
         </div>

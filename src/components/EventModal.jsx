@@ -364,6 +364,10 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
       return;
     }
 
+    const { data: bloqueios } = await supabase
+      .from('estudio_bloqueios')
+      .select('*');
+
     const conflito = agendamentos.some((ag) => {
       if (isEdit && ag.id === event.id) return false;
       const agStart = new Date(`${ag.date}T${ag.start}`);
@@ -376,6 +380,26 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     });
     if (conflito) {
       setError('❌ Conflito de horário com outro evento no mesmo estúdio.');
+      return;
+    }
+
+    const conflitoBloqueio = bloqueios.some((b) => {
+      if (b.estudio !== form.studio) return false;
+
+      const bStart = new Date(b.inicio);
+      const bEnd = new Date(b.fim);
+
+      return (
+        (novoInicio >= bStart && novoInicio < bEnd) ||
+        (novoFim > bStart && novoFim <= bEnd) ||
+        (novoInicio <= bStart && novoFim >= bEnd)
+      );
+    });
+
+    if (conflitoBloqueio) {
+      setError(
+        '❌ Este estúdio está indisponível nesse horário (manutenção/limpeza).'
+      );
       return;
     }
 
@@ -481,8 +505,8 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
 
     if (!response.error) {
       await registrarLog(event.id, 'delete', oldData, null);
-      onSave();
-      onClose();
+      onSave && onSave(null, 'delete');
+      onClose && onClose();
     } else {
       setError('Erro ao cancelar agendamento');
     }
@@ -490,7 +514,12 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onClose}>
+      <Dialog
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) onClose();
+        }}
+      >
         <DialogContent className='w-full max-w-md h-auto'>
           <DialogHeader>
             <DialogTitle>
