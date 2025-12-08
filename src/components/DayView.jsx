@@ -144,12 +144,59 @@ const DayView = ({ events = [], onUpdated }) => {
                         ? String(ev.id)
                         : `${studio}-${start.getTime()}-${idx}`;
 
+                    const isBloqueio = ev.extendedProps?.tipo === 'bloqueio';
+                    const motivo =
+                      ev.extendedProps?.motivo?.trim() || 'Limpeza';
+
+                    if (isBloqueio) {
+                      return (
+                        <HoverCard key={idx}>
+                          <HoverCardTrigger asChild>
+                            <div
+                              className='absolute left-2 right-2 rounded-md bg-red-400 text-gray-900 dark:text-gray-200 p-1 text-sm flex items-center justify-center select-none cursor-default'
+                              style={{
+                                top: `${topPct}%`,
+                                height: `${heightPct}%`,
+                              }}
+                            >
+                              <span className='font-medium truncate'>
+                                {ev.title}
+                              </span>
+                            </div>
+                          </HoverCardTrigger>
+
+                          <HoverCardContent className='w-56 p-3 space-y-1 text-sm'>
+                            <p>
+                              <strong>{ev.title}</strong>
+                            </p>
+                            <p>
+                              🕒{' '}
+                              {`${start
+                                .getHours()
+                                .toString()
+                                .padStart(2, '0')}:${start
+                                .getMinutes()
+                                .toString()
+                                .padStart(2, '0')} - ${end
+                                .getHours()
+                                .toString()
+                                .padStart(2, '0')}:${end
+                                .getMinutes()
+                                .toString()
+                                .padStart(2, '0')}`}
+                            </p>
+                            <p>❗ Motivo: {motivo}</p>
+                          </HoverCardContent>
+                        </HoverCard>
+                      );
+                    }
+
+                    // ✔ Evento normal — mantém HoverCard
                     return (
                       <HoverCard
                         key={idx}
                         open={openCard === uid}
                         onOpenChange={(isOpen) => {
-                          // Fecha automaticamente se for desktop (hover), ou controla manualmente no mobile
                           if (!('ontouchstart' in window)) {
                             setOpenCard(isOpen ? uid : null);
                           }
@@ -158,15 +205,12 @@ const DayView = ({ events = [], onUpdated }) => {
                         <HoverCardTrigger
                           asChild
                           onClick={(e) => {
-                            // Bloqueia o Radix de tentar abrir via hover no mobile
                             e.stopPropagation();
                             if ('ontouchstart' in window) {
-                              // Garante que só um hover fica aberto por vez
                               setOpenCard(openCard === uid ? null : uid);
                             }
                           }}
                           onMouseEnter={() => {
-                            // Fecha outros se estiver em desktop e o mouse passou sobre outro
                             if (!('ontouchstart' in window)) {
                               setOpenCard(uid);
                             }
@@ -205,6 +249,8 @@ const DayView = ({ events = [], onUpdated }) => {
                             </div>
                           </div>
                         </HoverCardTrigger>
+
+                        {/* Conteúdo do hover normal */}
                         <HoverCardContent className='w-56 p-3 space-y-1 text-sm'>
                           <p>
                             <strong>{ev.title}</strong>

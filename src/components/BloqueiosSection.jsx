@@ -33,7 +33,8 @@ const BloqueiosSection = () => {
     const { data, error } = await supabase
       .from('estudio_bloqueios')
       .select('*')
-      .order('inicio', { ascending: true });
+      .order('data', { ascending: true })
+      .order('horario_inicio', { ascending: true });
 
     if (!error) setBloqueios(data);
   }
@@ -55,9 +56,9 @@ const BloqueiosSection = () => {
   function abrirEditar(item) {
     setEditing(item.id);
     setEstudio(item.estudio);
-    setData(item.inicio.slice(0, 10));
-    setHoraInicio(item.inicio.slice(11, 16));
-    setHoraFim(item.fim.slice(11, 16));
+    setData(item.data);
+    setHoraInicio(item.inicio.slice(0, 5));
+    setHoraFim(item.fim.slice(0, 5));
     setMotivo(item.motivo);
     setOpenModal(true);
   }
@@ -71,27 +72,26 @@ const BloqueiosSection = () => {
     const { data: userData } = await supabase.auth.getUser();
     const userId = userData?.user?.id;
 
+    const payload = {
+      estudio,
+      data,
+      horario_inicio: horaInicio + ':00',
+      horario_fim: horaFim + ':00',
+      motivo,
+      criado_por: userId,
+    };
+
     if (editing) {
       const { error } = await supabase
         .from('estudio_bloqueios')
-        .update({
-          estudio,
-          inicio: inicioTimestamp,
-          fim: fimTimestamp,
-          motivo,
-          criado_por: userId,
-        })
+        .update(payload)
         .eq('id', editing);
 
       if (error) console.log('Erro Update:', error);
     } else {
-      const { error } = await supabase.from('estudio_bloqueios').insert({
-        estudio,
-        inicio: inicioTimestamp,
-        fim: fimTimestamp,
-        motivo,
-        criado_por: userId,
-      });
+      const { error } = await supabase
+        .from('estudio_bloqueios')
+        .insert(payload);
       if (error) console.log('Erro Insert:', error);
     }
 
@@ -121,8 +121,8 @@ const BloqueiosSection = () => {
             <div>
               <h3 className='font-semibold'>{b.estudio}</h3>
               <p className='text-sm text-muted-foreground'>
-                {new Date(b.inicio).toLocaleDateString('pt-BR')} -{' '}
-                {b.inicio.slice(11, 16)} às {b.fim.slice(11, 16)}
+                {new Date(`${b.data}T00:00:00`).toLocaleDateString('pt-BR')} -{' '}
+                {b.horario_inicio.slice(0, 5)} às {b.horario_fim.slice(0, 5)}
               </p>
               {b.motivo && (
                 <p className='text-sm text-muted-foreground'>

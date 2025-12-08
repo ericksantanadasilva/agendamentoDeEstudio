@@ -12,7 +12,6 @@ import {
 } from 'react';
 import '../styles/fullcalendar-overrides.css';
 import { supabase } from '../lib/supabase';
-import EventsByDateModal from './EventsByDateModal';
 import EventModal from './EventModal';
 import { gerarFeriadosRJ } from '@/utils/feriadosRJ';
 import {
@@ -37,10 +36,18 @@ function Calendar({ darkMode, onDayClick, onUpdated }, ref) {
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   const fetchEvents = async () => {
-    const { data, error } = await supabase.from('agendamentos').select('*');
-    if (error) return console.error(error);
+    const { data: agendamentos, error: errAg } = await supabase
+      .from('agendamentos')
+      .select('*');
+    if (errAg) return console.error(errAg);
 
-    const formatted = data.map((evento) => ({
+    // bloqueios
+    const { data: bloqueios, error: errBl } = await supabase
+      .from('estudio_bloqueios')
+      .select('*');
+    if (errBl) return console.error(errBl);
+
+    const formattedAgendamentos = agendamentos.map((evento) => ({
       id: evento.id,
       title: `${evento.materia} - ${evento.gravacao}`,
       start: `${evento.date}T${evento.start}`,
@@ -48,6 +55,17 @@ function Calendar({ darkMode, onDayClick, onUpdated }, ref) {
       studio: evento.studio,
       extendedProps: { ...evento },
     }));
+
+    const formattedBloqueios = bloqueios.map((bloqueio) => ({
+      id: `bloqueio-${bloqueio.id}`,
+      title: `Bloqueio do ${bloqueio.estudio}`,
+      start: `${bloqueio.data}T${bloqueio.horario_inicio}`,
+      end: `${bloqueio.data}T${bloqueio.horario_fim}`,
+      studio: bloqueio.estudio,
+      extendedProps: { tipo: 'bloqueio', ...bloqueio },
+    }));
+
+    const formatted = [...formattedAgendamentos, ...formattedBloqueios];
 
     setEvents(formatted);
 
@@ -165,7 +183,6 @@ function Calendar({ darkMode, onDayClick, onUpdated }, ref) {
           setEventsOfSelectedDay(
             events.filter((e) => e.start.startsWith(clickedDateISO))
           );
-          setModalOpen(true);
           return 'none';
         }}
         datesSet={(arg) => {
@@ -182,13 +199,30 @@ function Calendar({ darkMode, onDayClick, onUpdated }, ref) {
         editable={false}
         selectable={true}
         dayCellClassNames={() => 'rounded-md overflow-hidden'}
-        eventClassNames={() =>
-          'bg-transparent text-gray-800 dark:text-gray-200 text-sm px-2 py-1 rounded shadow dark:shadow-neutral-900 cursor-pointer'
-        }
+        eventClassNames={(arg) => {
+          const tipo = arg.event.extendedProps?.tipo;
+          const isBloqueio = tipo === 'bloqueio';
+
+          if (isBloqueio) {
+            return 'bg-red-400 dark:bg-red-400 text-gray-800 dark:text-gray-200 text-sm px-2 py-1 rounded shadow-none cursor-default pointer-events-none';
+          }
+          return 'bg-transparent text-gray-800 dark:text-gray-200 text-sm px-2 py-1 rounded shadow dark:shadow-neutral-900 cursor-pointer';
+        }}
         events={[...events, ...feriados]}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
         eventContent={(arg) => {
+          const tipo = arg.event.extendedProps?.tipo;
+          const isBloqueio = tipo === 'bloqueio';
+
+          if (isBloqueio) {
+            return (
+              <div className='flex items-center justify-center w-full'>
+                <span>{arg.event.title}</span>
+              </div>
+            );
+          }
+
           const cor = getEventColor(arg.event.extendedProps);
           return (
             <div className='flex items-center gap-2'>
@@ -196,18 +230,6 @@ function Calendar({ darkMode, onDayClick, onUpdated }, ref) {
               <span>{arg.event.title}</span>
             </div>
           );
-        }}
-      />
-
-      <EventsByDateModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        events={eventsOfSelectedDay}
-        onEdit={(event, forcedDate) => {
-          setSelectedEvent(event || null);
-          setSelectedDate(event?.start || `${forcedDate}T08:00`);
-          setModalOpen(false);
-          setCreateModalOpen(true);
         }}
       />
 

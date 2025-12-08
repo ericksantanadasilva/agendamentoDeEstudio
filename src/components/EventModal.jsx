@@ -386,8 +386,8 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     const conflitoBloqueio = bloqueios.some((b) => {
       if (b.estudio !== form.studio) return false;
 
-      const bStart = new Date(b.inicio);
-      const bEnd = new Date(b.fim);
+      const bStart = new Date(`${b.data}T${b.horario_inicio}`);
+      const bEnd = new Date(`${b.data}T${b.horario_fim}`);
 
       return (
         (novoInicio >= bStart && novoInicio < bEnd) ||

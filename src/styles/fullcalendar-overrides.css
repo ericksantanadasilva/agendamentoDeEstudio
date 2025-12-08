@@ -253,3 +253,10 @@ body {
 .dark .fc-event.feriado .fc-event-main span:last-child {
   color: rgb(235, 230, 231);
 }
+
+.dark .fc-daygrid-more-link {
+  color: oklch(92.8% 0.006 264.531);
+}
+.dark .fc-daygrid-more-link:hover {
+  background-color: rgb(34, 42, 54) !important;
+}
