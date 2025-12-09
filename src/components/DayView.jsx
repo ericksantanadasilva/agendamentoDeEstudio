@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
 import EventModal from './EventModal';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 const studios = ['Estudio 170', 'Estudio 120', 'Remoto']; // nomes EXATOS esperados
 
@@ -149,23 +150,49 @@ const DayView = ({ events = [], onUpdated }) => {
                       ev.extendedProps?.motivo?.trim() || 'Limpeza';
 
                     if (isBloqueio) {
+                      const uid =
+                        ev.id != null
+                          ? `bloqueio-${ev.id}`
+                          : `bloqueio-${studio}-${start.getTime()}-${idx}-bloq`;
+
+                      const isMobile = 'ontouchstart' in window;
+                      const isOpen = openCard === uid;
+
                       return (
-                        <HoverCard key={idx}>
-                          <HoverCardTrigger asChild>
+                        <Popover
+                          key={idx}
+                          open={isOpen}
+                          onOpenChange={(opened) =>
+                            setOpenCard(opened ? uid : null)
+                          }
+                        >
+                          <PopoverTrigger asChild>
                             <div
                               className='absolute left-2 right-2 rounded-md bg-red-400 text-gray-900 dark:text-gray-200 p-1 text-sm flex items-center justify-center select-none cursor-default'
                               style={{
                                 top: `${topPct}%`,
                                 height: `${heightPct}%`,
                               }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (isMobile) {
+                                  setOpenCard(isOpen ? null : uid);
+                                }
+                              }}
+                              onMouseEnter={() => {
+                                if (!isMobile) setOpenCard(uid);
+                              }}
+                              onMouseLeave={() => {
+                                if (!isMobile) setOpenCard(null);
+                              }}
                             >
                               <span className='font-medium truncate'>
                                 {ev.title}
                               </span>
                             </div>
-                          </HoverCardTrigger>
+                          </PopoverTrigger>
 
-                          <HoverCardContent className='w-56 p-3 space-y-1 text-sm'>
+                          <PopoverContent className='w-56 p-3 space-y-1 text-sm'>
                             <p>
                               <strong>{ev.title}</strong>
                             </p>
@@ -186,8 +213,8 @@ const DayView = ({ events = [], onUpdated }) => {
                                 .padStart(2, '0')}`}
                             </p>
                             <p>❗ Motivo: {motivo}</p>
-                          </HoverCardContent>
-                        </HoverCard>
+                          </PopoverContent>
+                        </Popover>
                       );
                     }
 
