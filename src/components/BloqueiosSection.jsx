@@ -108,7 +108,7 @@ const BloqueiosSection = () => {
       <div className='flex items-center justify-between mb-3'>
         <h2 className='font-semibold text-lg'>Bloqueios de Estúdio</h2>
         <Button size='sm' onClick={abrirCriar}>
-          Adicionar Bloqueio
+          + Adicionar
         </Button>
       </div>
 
