@@ -130,15 +130,16 @@ const ManagementPage = () => {
     }
   };
 
-  const handleDeleteAula = async () => {
-    if (!editData) return;
+  const handleDeleteAula = async (id) => {
+    if (!id) {
+      alert('Erro: nenhuma aula selecionada.');
+      return;
+    }
+
     const confirmar = confirm('Tem certeza que deseja excluir esta aula fixa?');
     if (!confirmar) return;
 
-    const { error } = await supabase
-      .from('aulas_fixas')
-      .delete()
-      .eq('id', editData.id);
+    const { error } = await supabase.from('aulas_fixas').delete().eq('id', id);
 
     if (error) {
       console.error('Erro ao excluir aula fixa:', error);
