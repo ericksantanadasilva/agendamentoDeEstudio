@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase';
 import FixedClassModal from '@/components/FixedClassModal';
 import { formatTime } from '@/utils/formatTime';
 import BloqueiosSection from '@/components/BloqueiosSection';
+import { ModalGerarAulasFixas } from '@/components/ModalGerarAulasFixas';
 
 const ManagementPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -40,6 +41,8 @@ const ManagementPage = () => {
   const [aulas, setAulas] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
+
+  const [openGerar, setOpenGerar] = useState(false);
 
   useEffect(() => {
     fetchPermissions();
@@ -395,15 +398,26 @@ const ManagementPage = () => {
                   <CardTitle className='text-base'>
                     Gerenciar aulas fixas semanais
                   </CardTitle>
-                  <Button
-                    size='sm'
-                    onClick={() => {
-                      setEditData(null);
-                      setModalOpen(true);
-                    }}
-                  >
-                    + Adicionar
-                  </Button>
+                  <div className='flex items-center gap-2'>
+                    <Button size='sm' onClick={() => setOpenGerar(true)}>
+                      Gerar Aulas Fixas
+                    </Button>
+
+                    <Button
+                      size='sm'
+                      onClick={() => {
+                        setEditData(null);
+                        setModalOpen(true);
+                      }}
+                    >
+                      + Adicionar
+                    </Button>
+                  </div>
+
+                  <ModalGerarAulasFixas
+                    open={openGerar}
+                    onClose={() => setOpenGerar(false)}
+                  />
                 </CardHeader>
                 <CardContent className='space-y-3'>
                   {aulas.map((aula) => (
