@@ -59,7 +59,7 @@ export function gerarFeriadosRJ(ano) {
       tipo: 'móvel',
     },
     {
-      data: formatardata(adicionarDias(pascoa, -46)),
+      data: formatarData(adicionarDias(pascoa, -46)),
       nome: 'Cinzas',
       tipo: 'móvel',
     },
