@@ -57,8 +57,8 @@ const BloqueiosSection = () => {
     setEditing(item.id);
     setEstudio(item.estudio);
     setData(item.data);
-    setHoraInicio(item.inicio.slice(0, 5));
-    setHoraFim(item.fim.slice(0, 5));
+    setHoraInicio(item.horario_inicio.slice(0, 5));
+    setHoraFim(item.horario_fim.slice(0, 5));
     setMotivo(item.motivo);
     setOpenModal(true);
   }

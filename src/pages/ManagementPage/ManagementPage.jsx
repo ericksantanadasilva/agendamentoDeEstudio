@@ -15,6 +15,7 @@ import FixedClassModal from '@/components/FixedClassModal';
 import { formatTime } from '@/utils/formatTime';
 import BloqueiosSection from '@/components/BloqueiosSection';
 import { ModalGerarAulasFixas } from '@/components/ModalGerarAulasFixas';
+import { RegrasDuracaoSection } from '@/components/RegrasDuracaoSection';
 
 const ManagementPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -481,6 +482,8 @@ const ManagementPage = () => {
               <BloqueiosSection />
             </AccordionContent>
           </AccordionItem>
+
+          <RegrasDuracaoSection />
         </Accordion>
       </div>
     </div>
