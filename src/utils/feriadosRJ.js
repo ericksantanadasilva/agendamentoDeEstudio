@@ -59,6 +59,11 @@ export function gerarFeriadosRJ(ano) {
       tipo: 'móvel',
     },
     {
+      data: formatardata(adicionarDias(pascoa, -46)),
+      nome: 'Cinzas',
+      tipo: 'móvel',
+    },
+    {
       data: formatarData(adicionarDias(pascoa, -2)),
       nome: 'Sexta-feira Santa',
       tipo: 'móvel',
