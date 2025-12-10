@@ -7,7 +7,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/lib/supabase';
@@ -16,6 +22,14 @@ import { formatTime } from '@/utils/formatTime';
 import BloqueiosSection from '@/components/BloqueiosSection';
 import { ModalGerarAulasFixas } from '@/components/ModalGerarAulasFixas';
 import { RegrasDuracaoSection } from '@/components/RegrasDuracaoSection';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const ManagementPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -321,69 +335,79 @@ const ManagementPage = () => {
               {/* Modal de adicionar/editar escala */}
               {showAddModal && (
                 <div className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'>
-                  <div className='bg-white dark:bg-neutral-900 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-xl'>
-                    <h2 className='text-xl font-semibold mb-2'>
-                      {editItem ? 'Editar Escala' : 'Nova Escala'}
-                    </h2>
-                    <div className='space-y-3'>
-                      <input
-                        type='text'
-                        className='w-full p-2 rounded border bg-transparent'
+                  <Card className='w-full max-w-md p-0'>
+                    <CardHeader>
+                      <CardTitle className='text-xl font-semibold mt-3'>
+                        {editItem ? 'Editar Escala' : 'Nova Escala'}
+                      </CardTitle>
+                    </CardHeader>
+
+                    <CardContent className='space-y-4'>
+                      <Input
                         placeholder='Nome do técnico'
                         value={form.tecnico_nome}
                         onChange={(e) =>
                           setForm({ ...form, tecnico_nome: e.target.value })
                         }
                       />
-                      <input
-                        type='text'
-                        className='w-full p-2 rounded border bg-transparent'
+
+                      <Input
                         placeholder='Dia da semana'
                         value={form.dia_semana}
                         onChange={(e) =>
                           setForm({ ...form, dia_semana: e.target.value })
                         }
                       />
+
                       <div className='flex gap-2'>
-                        <input
+                        <Input
                           type='time'
-                          className='w-full p-2 rounded border bg-transparent'
                           value={form.hora_inicio}
                           onChange={(e) =>
                             setForm({ ...form, hora_inicio: e.target.value })
                           }
                         />
-                        <input
+
+                        <Input
                           type='time'
-                          className='w-full p-2 rounded border bg-transparent'
                           value={form.hora_fim}
                           onChange={(e) =>
                             setForm({ ...form, hora_fim: e.target.value })
                           }
                         />
                       </div>
-                      <select
-                        className='w-full p-2 rounded border bg-transparent'
+
+                      <Select
                         value={form.estudio}
-                        onChange={(e) =>
-                          setForm({ ...form, estudio: e.target.value })
+                        onValueChange={(value) =>
+                          setForm({ ...form, estudio: value })
                         }
                       >
-                        <option value=''>Selecione o estúdio</option>
-                        <option value='Estúdio 170'>Estudio 170</option>
-                        <option value='Estúdio 120'>Estudio 120</option>
-                      </select>
-                    </div>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Selecione o estúdio' />
+                        </SelectTrigger>
 
-                    <div className='flex justify-end gap-2 mt-4'>
+                        <SelectContent>
+                          <SelectItem value='Estudio 170'>
+                            Estudio 170
+                          </SelectItem>
+                          <SelectItem value='Estudio 120'>
+                            Estudio 120
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </CardContent>
+
+                    <CardFooter className='flex justify-end gap-2 mb-4'>
                       <Button variant='outline' onClick={handleCancel}>
                         Cancelar
                       </Button>
+
                       <Button onClick={handleSave}>
                         {editItem ? 'Salvar alterações' : 'Adicionar'}
                       </Button>
-                    </div>
-                  </div>
+                    </CardFooter>
+                  </Card>
                 </div>
               )}
             </AccordionContent>
