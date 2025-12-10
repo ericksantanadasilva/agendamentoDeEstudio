@@ -169,6 +169,7 @@ const BloqueiosSection = () => {
                 <SelectContent>
                   <SelectItem value='Estudio 120'>Estúdio 120</SelectItem>
                   <SelectItem value='Estudio 170'>Estúdio 170</SelectItem>
+                  <SelectItem value='Remoto'>Remoto</SelectItem>
                 </SelectContent>
               </Select>
             </div>
