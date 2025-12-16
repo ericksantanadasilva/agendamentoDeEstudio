@@ -29,21 +29,23 @@ import { gerarAulasFixas } from '@/utils/gerarAulasFixas';
 
 export function ModalGerarAulasFixas({ open, onClose }) {
   const [dataInicial, setDataInicial] = useState('');
-  const [quantidade, setQuantidade] = useState(4);
-  const [repetirPor, setRepetirPor] = useState('semanas');
+  const [dataFinal, setDataFinal] = useState('');
   const [loading, setLoading] = useState(false);
 
   const [openSuccess, setOpenSuccess] = useState(false);
 
   const handleGerar = async () => {
-    if (!dataInicial) return alert('Selecione a data inicial!');
+    if (!dataInicial || !dataFinal)
+      return alert('Selecione a data inicial e final!');
+
+    if (dataFinal < dataInicial)
+      return alert('A data final deve ser maior que a data inicial!');
 
     setLoading(true);
 
     await gerarAulasFixas({
       dataInicial,
-      quantidade: Number(quantidade),
-      repetirPor,
+      dataFinal,
     });
 
     setLoading(false);
@@ -70,26 +72,13 @@ export function ModalGerarAulasFixas({ open, onClose }) {
             </div>
 
             <div>
-              <label className='text-sm'>Quantidade</label>
+              <label className='text-sm'>Data Final</label>
               <Input
-                type='number'
-                min={1}
-                value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
+                type='date'
+                min={dataInicial}
+                value={dataFinal}
+                onChange={(e) => setDataFinal(e.target.value)}
               />
-            </div>
-
-            <div>
-              <label className='text-sm'>Repetir por</label>
-              <Select value={repetirPor} onValueChange={setRepetirPor}>
-                <SelectTrigger>
-                  <SelectValue placeholder='Selecione' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='semanas'>Semanas</SelectItem>
-                  <SelectItem value='meses'>Meses</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <Button onClick={handleGerar} disabled={loading} className='w-full'>

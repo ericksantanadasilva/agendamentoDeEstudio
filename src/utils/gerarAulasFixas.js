@@ -13,6 +13,16 @@ const diasSemanaMap = {
   sábado: 6,
 };
 
+// ========================
+// HELPERS DE DATA
+// ========================
+
+// parse seguro para datas vindas de input type="date"
+function parseLocalDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 // formata Date -> 'YYYY-MM-DD'
 function formatDateYYYYMMDD(d) {
   const y = d.getFullYear();
@@ -21,7 +31,7 @@ function formatDateYYYYMMDD(d) {
   return `${y}-${m}-${day}`;
 }
 
-// normaliza hora: aceita 'HH:MM' ou 'HH:MM:SS' e garante 'HH:MM:SS'
+// normaliza hora: aceita 'HH:MM' ou 'HH:MM:SS'
 function normalizeTime(t) {
   if (!t) return null;
   const parts = t.split(':');
@@ -38,10 +48,9 @@ function normalizeTime(t) {
 /**
  * gerarAulasFixas
  * - dataInicial: 'YYYY-MM-DD' ou Date
- * - quantidade: número
- * - repetirPor: 'semanas' | 'meses'
+ * - dataFinal: 'YYYY-MM-DD' ou Date
  */
-export async function gerarAulasFixas({ dataInicial, quantidade, repetirPor }) {
+export async function gerarAulasFixas({ dataInicial, dataFinal }) {
   const { data: aulas, error: errAulas } = await supabase
     .from('aulas_fixas')
     .select('*');
@@ -53,45 +62,42 @@ export async function gerarAulasFixas({ dataInicial, quantidade, repetirPor }) {
   if (!aulas || aulas.length === 0) return;
 
   const inicio =
-    dataInicial instanceof Date ? new Date(dataInicial) : new Date(dataInicial);
-  const fim = new Date(inicio);
-  if (repetirPor === 'semanas') fim.setDate(fim.getDate() + quantidade * 7);
-  else fim.setMonth(fim.getMonth() + quantidade);
+    dataInicial instanceof Date ? dataInicial : parseLocalDate(dataInicial);
+
+  const fim = dataFinal instanceof Date ? dataFinal : parseLocalDate(dataFinal);
+
+  // inclui o último dia no intervalo
+  fim.setHours(23, 59, 59, 999);
 
   for (const aula of aulas) {
     const diaTexto = (aula.dia_semana || '').toLowerCase();
     const diaNum = diasSemanaMap[diaTexto];
+
     if (diaNum === undefined) {
       console.warn('Dia inválido em aulas_fixas:', aula.dia_semana);
       continue;
     }
 
-    const occurrences = gerarDatasOcorrencias(inicio, fim, diaNum);
+    const occurrences = gerarDatasNoIntervalo(inicio, fim, diaNum);
 
-    // normaliza hora (garante HH:MM:SS)
     const startTime = normalizeTime((aula.hora_inicio || '').slice(0, 8));
     const endTime = normalizeTime((aula.hora_fim || '').slice(0, 8));
 
-    // ajustar estudio -> studio (remove prefixo "estudio " se houver)
     const studio = aula.estudio;
 
     for (const occ of occurrences) {
       const dateStr = formatDateYYYYMMDD(occ);
 
-      // Verifica overlap no mesmo dia:
-      // overlap se existing.start < newEnd AND existing.end > newStart
       const { data: conflitos, error: errConflito } = await supabase
         .from('agendamentos')
         .select('*')
-        .eq('date', dateStr) // mesmo dia
-        .eq('studio', studio) // mesmo estúdio
-        .lt('start', endTime) // existing.start < newEnd
-        .gt('end', startTime); // existing.end > newStart
+        .eq('date', dateStr)
+        .eq('studio', studio)
+        .lt('start', endTime)
+        .gt('end', startTime);
 
       if (errConflito) {
         console.error('Erro checando conflito:', errConflito);
-        // se quiser abortar toda a geração, descomente:
-        // throw errConflito;
         continue;
       }
 
@@ -107,7 +113,6 @@ export async function gerarAulasFixas({ dataInicial, quantidade, repetirPor }) {
         continue;
       }
 
-      // Inserir agendamento (date: date, start: time, end: time)
       const { error: errInsert } = await supabase.from('agendamentos').insert([
         {
           date: dateStr,
@@ -123,7 +128,6 @@ export async function gerarAulasFixas({ dataInicial, quantidade, repetirPor }) {
 
       if (errInsert) {
         console.error('Erro inserindo agendamento:', errInsert);
-        // continua com as próximas ocorrências
       } else {
         console.log(
           'Agendamento criado:',
@@ -138,14 +142,23 @@ export async function gerarAulasFixas({ dataInicial, quantidade, repetirPor }) {
   }
 }
 
-function gerarDatasOcorrencias(inicio, fim, diaSemana) {
+/**
+ * Gera todas as datas de um dia da semana
+ * dentro do intervalo [inicio, fim]
+ */
+function gerarDatasNoIntervalo(inicio, fim, diaSemana) {
   const datas = [];
-  const first = new Date(inicio);
-  while (first.getDay() !== diaSemana) first.setDate(first.getDate() + 1);
-  let current = new Date(first);
+  let current = new Date(inicio);
+
+  // avança até o primeiro dia da semana correto
+  while (current.getDay() !== diaSemana) {
+    current.setDate(current.getDate() + 1);
+  }
+
   while (current <= fim) {
     datas.push(new Date(current));
     current.setDate(current.getDate() + 7);
   }
+
   return datas;
 }
