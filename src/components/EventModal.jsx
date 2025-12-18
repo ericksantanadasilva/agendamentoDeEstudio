@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -57,6 +57,7 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
   const [tecnicosDisponiveis, setTecnicosDisponiveis] = useState([]);
   const [erroTecnico, setErroTecnico] = useState(null);
   const [debouncedStartTime, setDebouncedStartTime] = useState('');
+  const [user, setUser] = useState(null);
 
   // Carrega regras e matérias
   useEffect(() => {
@@ -512,6 +513,23 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
     }
   };
 
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
+
+  const TECNICOS_MANUAL_EMAILS = [
+    'ericksilva@focomedicina.com',
+    'sauloadao@focomedicina.com',
+  ];
+
+  const podeEditarTecnico = TECNICOS_MANUAL_EMAILS.includes(user?.email);
+
   return (
     <>
       <Dialog
@@ -648,7 +666,14 @@ export default function EventModal({ open, onClose, date, event, onSave }) {
               </div>
               <div>
                 <Label className='mb-1'>Técnico</Label>
-                <Input placeholder='Técnico' value={form.tecnico} disabled />
+                <Input
+                  placeholder='Técnico'
+                  value={form.tecnico}
+                  disabled={!podeEditarTecnico}
+                  onChange={(e) =>
+                    setForm({ ...form, tecnico: e.target.value })
+                  }
+                />
               </div>
             </div>
 
